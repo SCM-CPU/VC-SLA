@@ -20,6 +20,7 @@
     --grade-b-bg:#FBF0DA;
     --grade-c-bg:#FBE7DE;
     --grade-d-bg:#FADDDE;
+    --bright-blue:#0B63F6;
     --shadow:0 1px 2px rgba(20,26,43,.04), 0 8px 24px -12px rgba(20,26,43,.14);
   }
   @media (prefers-color-scheme: dark){
@@ -42,6 +43,7 @@
       --grade-b-bg:#3A2F17;
       --grade-c-bg:#3B2419;
       --grade-d-bg:#3D1E20;
+      --bright-blue:#5B9CFF;
       --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
     }
   }
@@ -64,6 +66,7 @@
     --grade-b-bg:#3A2F17;
     --grade-c-bg:#3B2419;
     --grade-d-bg:#3D1E20;
+    --bright-blue:#5B9CFF;
     --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
   }
 
@@ -133,6 +136,9 @@
     font-variant-numeric:tabular-nums;
   }
   .updated b{color:var(--muted);font-weight:600;}
+  .raw-links{margin-bottom:4px;}
+  .raw-links a{color:var(--accent-ink);text-decoration:none;font-weight:700;border-bottom:1px solid color-mix(in srgb, var(--accent-ink) 40%, transparent);}
+  .raw-links a:hover{border-bottom-color:currentColor;}
 
   .legend{
     display:flex;
@@ -169,33 +175,28 @@
 
   .p-top{
     display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:16px;
+    align-items:baseline;
+    gap:14px;
     flex-wrap:wrap;
   }
-  .p-name{font-size:18px;font-weight:900;letter-spacing:-.2px;flex:none;}
+  .p-name{font-size:23px;font-weight:900;letter-spacing:-.2px;flex:none;}
 
   .p-highlight{
     display:flex;
     align-items:baseline;
-    gap:10px;
-    background:var(--accent-soft);
-    border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-    border-radius:12px;
-    padding:8px 16px;
+    gap:8px;
   }
   .p-highlight .hl-num{
-    font-size:30px;
+    font-size:26px;
     font-weight:900;
-    color:var(--accent-ink);
+    color:var(--bright-blue);
     font-variant-numeric:tabular-nums;
     letter-spacing:-.4px;
   }
   .p-highlight .hl-label{
     font-size:12.5px;
     font-weight:700;
-    color:var(--accent-ink);
+    color:var(--bright-blue);
   }
 
   .p-metrics{
@@ -243,30 +244,6 @@
     border:1px solid color-mix(in srgb, var(--accent) 45%, transparent);
     padding:1px 6px;
     border-radius:5px;
-  }
-  .live{
-    display:inline-flex;
-    align-items:center;
-    gap:4px;
-    font-size:10px;
-    font-weight:700;
-    color:var(--grade-s);
-    letter-spacing:0;
-  }
-  .live::before{
-    content:"";
-    width:6px;height:6px;border-radius:50%;
-    background:var(--grade-s);
-    box-shadow:0 0 0 0 var(--grade-s);
-    animation:pulse 1.6s infinite;
-  }
-  .live.stale{color:var(--faint);}
-  .live.stale::before{background:var(--faint);animation:none;}
-  @media (prefers-reduced-motion:reduce){.live::before{animation:none;}}
-  @keyframes pulse{
-    0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--grade-s) 55%, transparent);}
-    70%{box-shadow:0 0 0 5px transparent;}
-    100%{box-shadow:0 0 0 0 transparent;}
   }
   .metric .headline{
     display:flex;
@@ -331,7 +308,6 @@
   }
   @media (max-width:480px){
     .p-metrics{grid-template-columns:1fr;}
-    .p-highlight{width:100%;justify-content:space-between;}
     body{padding:20px 16px 40px;}
     .titles h1{font-size:19px;}
   }
@@ -347,8 +323,8 @@
       </div>
     </div>
     <div class="updated">
-      구색 데이터 실시간 연동 · 최근 갱신 <b id="updatedAt">불러오는 중…</b><br>
-      재고·반품·품절은 <b>2026. 9. 18.</b> 기준 수동 반영
+      <div class="raw-links">RAW <a href="https://docs.google.com/spreadsheets/d/1bUZVql4OCH4PW-9zPN3d3xyRwBP0-8dCn_uL3plCWdI/edit" target="_blank" rel="noopener">백제</a> · <a href="https://docs.google.com/spreadsheets/d/1OMqiqYu0F_vvum1piV1WYOafo5e2G3KDVllU85f7jyA/edit" target="_blank" rel="noopener">복산</a> · <a href="https://docs.google.com/spreadsheets/d/1z05vnwfAV5Wscc-SgtuZ3wwpuOP-5aZTAcc_SvO1dyY/edit" target="_blank" rel="noopener">인천</a></div>
+      데이터 기준 <b id="updatedAt">2026. 9. 18.</b>
     </div>
   </div>
 
@@ -437,8 +413,8 @@ function render(){
       <div class="p-metrics">
         ${p.metrics.map(m => `
           <div class="metric" data-partner="${p.name}" data-metric="${m.key}">
-            <span class="m-kicker">${m.key} 평가</span>
-            <div class="m-goal"><span class="goal-tag">목표</span>${m.label} ${m.key === "구색" ? `<span class="live${p.liveStatus === "fail" ? " stale" : ""}">${p.liveStatus === "ok" ? "실시간 연동됨" : p.liveStatus === "fail" ? "연동 실패 · 최근값 표시" : "연동 중…"}</span>` : ""}</div>
+            <span class="m-kicker">${m.key}</span>
+            <div class="m-goal"><span class="goal-tag">목표</span>${m.label}</div>
             <div class="headline">
               <span class="pct">${m.pct.toLocaleString()}%</span>
               ${m.grade ? `<span class="grade ${m.grade}">${m.grade.toUpperCase()}</span>` : ""}
@@ -517,10 +493,6 @@ async function syncLive(){
     }
   });
   render();
-  if(anyOk){
-    document.getElementById("updatedAt").textContent =
-      new Date().toLocaleString("ko-KR", { hour12:false });
-  }
 }
 syncLive();
 </script>
