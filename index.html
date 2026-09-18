@@ -393,7 +393,7 @@ function render(){
       <div class="p-metrics">
         ${p.metrics.map(m => `
           <div class="metric" data-partner="${p.name}" data-metric="${m.key}">
-            <div class="label">${m.key} · ${m.label} ${m.key === "구색" ? `<span class="live">연동 중…</span>` : ""}</div>
+            <div class="label">${m.key} · ${m.label} ${m.key === "구색" ? `<span class="live${p.liveStatus === "fail" ? " stale" : ""}">${p.liveStatus === "ok" ? "실시간 연동됨" : p.liveStatus === "fail" ? "연동 실패 · 최근값 표시" : "연동 중…"}</span>` : ""}</div>
             <div class="headline">
               <span class="pct">${m.pct.toLocaleString()}%</span>
               ${m.grade ? `<span class="grade ${m.grade}">${m.grade.toUpperCase()}</span>` : ""}
@@ -457,7 +457,6 @@ async function syncLive(){
   let anyOk = false;
   results.forEach((r, i) => {
     const p = DATA[i];
-    const badge = document.querySelector(`.metric[data-partner="${p.name}"][data-metric="구색"] .live`);
     const m = p.metrics.find(x => x.key === "구색");
     if(r.status === "fulfilled" && r.value.total > 0){
       anyOk = true;
@@ -467,10 +466,9 @@ async function syncLive(){
         ["양사 합의된 필수 구색수", total.toLocaleString()],
         ["현재 보유 중인 필수 구색수", have.toLocaleString()],
       ];
-      if(badge){ badge.textContent = "실시간 연동됨"; badge.classList.remove("stale"); }
-    } else if(badge){
-      badge.textContent = "연동 실패 · 최근값 표시";
-      badge.classList.add("stale");
+      p.liveStatus = "ok";
+    } else {
+      p.liveStatus = "fail";
     }
   });
   render();
