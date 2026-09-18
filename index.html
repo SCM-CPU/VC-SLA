@@ -200,6 +200,30 @@
     color:var(--muted);
     letter-spacing:.1px;
   }
+  .live{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:10px;
+    font-weight:700;
+    color:var(--grade-s);
+    letter-spacing:0;
+  }
+  .live::before{
+    content:"";
+    width:6px;height:6px;border-radius:50%;
+    background:var(--grade-s);
+    box-shadow:0 0 0 0 var(--grade-s);
+    animation:pulse 1.6s infinite;
+  }
+  .live.stale{color:var(--faint);}
+  .live.stale::before{background:var(--faint);animation:none;}
+  @media (prefers-reduced-motion:reduce){.live::before{animation:none;}}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--grade-s) 55%, transparent);}
+    70%{box-shadow:0 0 0 5px transparent;}
+    100%{box-shadow:0 0 0 0 transparent;}
+  }
   .metric .headline{
     display:flex;
     align-items:baseline;
@@ -278,7 +302,10 @@
         <p>협력도매 3사 · 구색 · 재고 · 반품 · 품절 평가 (외부공유용)</p>
       </div>
     </div>
-    <div class="updated">데이터 기준 <b>2026. 9. 18.</b></div>
+    <div class="updated">
+      구색 데이터 실시간 연동 · 최근 갱신 <b id="updatedAt">불러오는 중…</b><br>
+      재고·반품·품절은 <b>2026. 9. 18.</b> 기준 수동 반영
+    </div>
   </div>
 
   <div class="legend">
@@ -299,6 +326,7 @@
 const DATA = [
   {
     name: "백제약품",
+    sheetId: "1bUZVql4OCH4PW-9zPN3d3xyRwBP0-8dCn_uL3plCWdI",
     registered: 10943,
     metrics: [
       { key:"구색", label:"기준 구색 100% 달성", pct:88.0, grade:"b",
@@ -313,6 +341,7 @@ const DATA = [
   },
   {
     name: "복산나이스",
+    sheetId: "1OMqiqYu0F_vvum1piV1WYOafo5e2G3KDVllU85f7jyA",
     registered: 13469,
     metrics: [
       { key:"구색", label:"기준 구색 100% 달성", pct:79.9, grade:"c",
@@ -327,6 +356,7 @@ const DATA = [
   },
   {
     name: "인천약품",
+    sheetId: "1z05vnwfAV5Wscc-SgtuZ3wwpuOP-5aZTAcc_SvO1dyY",
     registered: 17425,
     metrics: [
       { key:"구색", label:"기준 구색 100% 달성", pct:87.1, grade:"b",
@@ -362,8 +392,8 @@ function render(){
       </div>
       <div class="p-metrics">
         ${p.metrics.map(m => `
-          <div class="metric">
-            <div class="label">${m.key} · ${m.label}</div>
+          <div class="metric" data-partner="${p.name}" data-metric="${m.key}">
+            <div class="label">${m.key} · ${m.label} ${m.key === "구색" ? `<span class="live">연동 중…</span>` : ""}</div>
             <div class="headline">
               <span class="pct">${m.pct.toLocaleString()}%</span>
               ${m.grade ? `<span class="grade ${m.grade}">${m.grade.toUpperCase()}</span>` : ""}
@@ -379,4 +409,75 @@ function render(){
   `).join("");
 }
 render();
+
+// 구색 항목(양사 합의된 필수 구색수 / 현재 보유 중인 필수 구색수 / 달성률)을
+// 원본 구글시트("평가 제품 현황" 탭)에서 JSONP로 직접 읽어와 실시간 반영한다.
+// 재고금액·반품·품절은 원본 시트에 해당 데이터가 없어 정적 값을 유지한다.
+const SHEET_TAB = "평가 제품 현황";
+let cbSeq = 0;
+
+function fetchSheetLive(company){
+  return new Promise((resolve, reject) => {
+    const cbName = "gvizCb_" + (cbSeq++);
+    const timer = setTimeout(() => { cleanup(); reject(new Error("timeout")); }, 10000);
+    function cleanup(){
+      clearTimeout(timer);
+      delete window[cbName];
+      script.remove();
+    }
+    window[cbName] = (json) => {
+      cleanup();
+      try{
+        const cols = json.table.cols.map(c => c.label);
+        const idxEval = cols.indexOf("(최종) 평가 품목 여부");
+        const idxStock = cols.indexOf("재고");
+        let total = 0, have = 0;
+        for(const row of json.table.rows){
+          const c = row.c;
+          if(!c || !c[idxEval] || c[idxEval].v !== "평가") continue;
+          total++;
+          const qty = c[idxStock] ? c[idxStock].v : 0;
+          if(typeof qty === "number" && qty >= 1) have++;
+        }
+        resolve({ total, have });
+      }catch(e){ reject(e); }
+    };
+    const url = "https://docs.google.com/spreadsheets/d/" + company.sheetId +
+      "/gviz/tq?tqx=responseHandler:" + cbName +
+      "&sheet=" + encodeURIComponent(SHEET_TAB);
+    const script = document.createElement("script");
+    script.src = url;
+    script.onerror = () => { cleanup(); reject(new Error("load error")); };
+    document.body.appendChild(script);
+  });
+}
+
+async function syncLive(){
+  const results = await Promise.allSettled(DATA.map(fetchSheetLive));
+  let anyOk = false;
+  results.forEach((r, i) => {
+    const p = DATA[i];
+    const badge = document.querySelector(`.metric[data-partner="${p.name}"][data-metric="구색"] .live`);
+    const m = p.metrics.find(x => x.key === "구색");
+    if(r.status === "fulfilled" && r.value.total > 0){
+      anyOk = true;
+      const { total, have } = r.value;
+      m.pct = Math.round((have/total)*1000)/10;
+      m.sub = [
+        ["양사 합의된 필수 구색수", total.toLocaleString()],
+        ["현재 보유 중인 필수 구색수", have.toLocaleString()],
+      ];
+      if(badge){ badge.textContent = "실시간 연동됨"; badge.classList.remove("stale"); }
+    } else if(badge){
+      badge.textContent = "연동 실패 · 최근값 표시";
+      badge.classList.add("stale");
+    }
+  });
+  render();
+  if(anyOk){
+    document.getElementById("updatedAt").textContent =
+      new Date().toLocaleString("ko-KR", { hour12:false });
+  }
+}
+syncLive();
 </script>
