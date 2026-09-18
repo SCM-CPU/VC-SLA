@@ -1,0 +1,382 @@
+<title>더샵플러스 SLA 현황</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#EEF1F8;
+    --surface:#FFFFFF;
+    --surface-alt:#F5F7FC;
+    --ink:#141A2B;
+    --muted:#5B6478;
+    --faint:#8991A6;
+    --border:#E2E6F1;
+    --accent:#28407F;
+    --accent-ink:#1B2C5C;
+    --accent-soft:#E7ECFB;
+    --grade-s:#2F6FED;
+    --grade-b:#C98A0A;
+    --grade-c:#D9663B;
+    --grade-d:#CC3B3F;
+    --grade-s-bg:#E5EEFE;
+    --grade-b-bg:#FBF0DA;
+    --grade-c-bg:#FBE7DE;
+    --grade-d-bg:#FADDDE;
+    --shadow:0 1px 2px rgba(20,26,43,.04), 0 8px 24px -12px rgba(20,26,43,.14);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F131F;
+      --surface:#171C2C;
+      --surface-alt:#1E2437;
+      --ink:#EEF1F8;
+      --muted:#9AA3BC;
+      --faint:#6B7390;
+      --border:#2B3149;
+      --accent:#7C97E8;
+      --accent-ink:#DCE4FA;
+      --accent-soft:#25335F;
+      --grade-s:#7FA6FF;
+      --grade-b:#E8B85A;
+      --grade-c:#F0916A;
+      --grade-d:#F17E82;
+      --grade-s-bg:#1E2C4E;
+      --grade-b-bg:#3A2F17;
+      --grade-c-bg:#3B2419;
+      --grade-d-bg:#3D1E20;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F131F;
+    --surface:#171C2C;
+    --surface-alt:#1E2437;
+    --ink:#EEF1F8;
+    --muted:#9AA3BC;
+    --faint:#6B7390;
+    --border:#2B3149;
+    --accent:#7C97E8;
+    --accent-ink:#DCE4FA;
+    --accent-soft:#25335F;
+    --grade-s:#7FA6FF;
+    --grade-b:#E8B85A;
+    --grade-c:#F0916A;
+    --grade-d:#F17E82;
+    --grade-s-bg:#1E2C4E;
+    --grade-b-bg:#3A2F17;
+    --grade-c-bg:#3B2419;
+    --grade-d-bg:#3D1E20;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Noto Sans KR","Malgun Gothic",-apple-system,sans-serif;
+    margin:0;
+    padding:28px 20px 48px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;}
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:24px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    display:inline-flex;align-items:baseline;gap:2px;
+    background:var(--accent);
+    color:#fff;
+    font-weight:900;
+    font-size:14px;
+    letter-spacing:.2px;
+    padding:6px 10px;
+    border-radius:8px;
+  }
+  .brand-mark small{font-weight:600;font-size:11px;opacity:.85;}
+  .titles h1{
+    margin:0;
+    font-size:22px;
+    font-weight:900;
+    letter-spacing:-.2px;
+  }
+  .titles p{
+    margin:2px 0 0;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .updated{
+    font-size:12px;
+    color:var(--faint);
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+  .updated b{color:var(--muted);font-weight:600;}
+
+  .legend{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+  }
+  .legend span{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;color:var(--muted);
+    background:var(--surface);
+    border:1px solid var(--border);
+    padding:5px 10px 5px 8px;
+    border-radius:999px;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+
+  .board{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .partner{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:18px 20px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  .p-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .p-name{font-size:18px;font-weight:900;letter-spacing:-.2px;flex:none;}
+
+  .p-highlight{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    background:var(--accent-soft);
+    border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-radius:12px;
+    padding:8px 16px;
+  }
+  .p-highlight .hl-num{
+    font-size:30px;
+    font-weight:900;
+    color:var(--accent-ink);
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-.4px;
+  }
+  .p-highlight .hl-label{
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--accent-ink);
+  }
+
+  .p-metrics{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+  }
+
+  .metric{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    padding:2px 14px;
+    border-right:1px solid var(--border);
+  }
+  .metric:last-child{border-right:none;}
+  .metric .label{
+    font-size:11.5px;
+    color:var(--muted);
+    letter-spacing:.1px;
+  }
+  .metric .headline{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  .metric .pct{
+    font-size:24px;
+    font-weight:900;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-.3px;
+  }
+  .grade{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:22px;
+    height:22px;
+    padding:0 6px;
+    border-radius:7px;
+    font-size:12px;
+    font-weight:900;
+  }
+  .grade.s{color:var(--grade-s);background:var(--grade-s-bg);}
+  .grade.b{color:var(--grade-b);background:var(--grade-b-bg);}
+  .grade.c{color:var(--grade-c);background:var(--grade-c-bg);}
+  .grade.d{color:var(--grade-d);background:var(--grade-d-bg);}
+
+  .bar{
+    height:5px;
+    border-radius:3px;
+    background:var(--surface-alt);
+    overflow:hidden;
+  }
+  .bar i{display:block;height:100%;border-radius:3px;}
+
+  .sub{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    font-size:11.5px;
+    color:var(--faint);
+  }
+  .sub span b{
+    color:var(--muted);
+    font-variant-numeric:tabular-nums;
+    font-weight:600;
+  }
+
+  .foot{
+    margin-top:22px;
+    font-size:12px;
+    color:var(--faint);
+    line-height:1.6;
+  }
+  .foot a{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid currentColor;}
+
+  @media (max-width:860px){
+    .p-metrics{grid-template-columns:1fr 1fr;}
+    .metric{border-right:none;border-bottom:1px solid var(--border);padding:10px 0;}
+    .metric:nth-child(odd){padding-right:14px;}
+  }
+  @media (max-width:480px){
+    .p-metrics{grid-template-columns:1fr;}
+    .p-highlight{width:100%;justify-content:space-between;}
+    body{padding:20px 16px 40px;}
+    .titles h1{font-size:19px;}
+  }
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark">DHOP <small>Plus+</small></span>
+      <div class="titles">
+        <h1>더샵플러스 SLA 현황</h1>
+        <p>협력도매 3사 · 구색 · 재고 · 반품 · 품절 평가 (외부공유용)</p>
+      </div>
+    </div>
+    <div class="updated">데이터 기준 <b>2026. 9. 18.</b></div>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot" style="background:var(--grade-s)"></i>S — 목표 초과 달성</span>
+    <span><i class="dot" style="background:var(--grade-b)"></i>B — 목표 근접</span>
+    <span><i class="dot" style="background:var(--grade-c)"></i>C — 개선 필요</span>
+    <span><i class="dot" style="background:var(--grade-d)"></i>D — 미달</span>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="foot">
+    더샵플러스에서 판매 가능한 구색수는 재고가 연동되어 1개 이상 확보된 상품 수입니다. 필수 구색수는 대웅제약-협력도매 양사가 합의한 평가 대상 품목을 기준으로 산정됩니다.
+  </div>
+</div>
+
+<script>
+const DATA = [
+  {
+    name: "백제약품",
+    registered: 10943,
+    metrics: [
+      { key:"구색", label:"기준 구색 100% 달성", pct:88.0, grade:"b",
+        sub:[["양사 합의된 필수 구색수","9,856"],["현재 보유 중인 필수 구색수","8,675"]] },
+      { key:"재고", label:"재고 금액 40억 이상 확보", pct:47.8, grade:"d",
+        sub:[["더샵플러스에서 판매 가능한 구색수","10,943"],["재고 금액(억)","19.13"]] },
+      { key:"반품", label:"수거 2일 이내 반품 완료", pct:97.8, grade:"b",
+        sub:[["반품 완료 건수","492"],["2일 내 처리 건수","481"]] },
+      { key:"품절", label:"기준 구색 품절 발생률 0%", pct:12.0, grade:null,
+        sub:[["필수 구색 중 재고 0","1,181"]] },
+    ]
+  },
+  {
+    name: "복산나이스",
+    registered: 13469,
+    metrics: [
+      { key:"구색", label:"기준 구색 100% 달성", pct:79.9, grade:"c",
+        sub:[["양사 합의된 필수 구색수","9,537"],["현재 보유 중인 필수 구색수","7,619"]] },
+      { key:"재고", label:"재고 금액 40억 이상 확보", pct:355.8, grade:"s",
+        sub:[["더샵플러스에서 판매 가능한 구색수","13,469"],["재고 금액(억)","142.31"]] },
+      { key:"반품", label:"수거 2일 이내 반품 완료", pct:99.1, grade:"b",
+        sub:[["반품 완료 건수","321"],["2일 내 처리 건수","318"]] },
+      { key:"품절", label:"기준 구색 품절 발생률 0%", pct:20.1, grade:null,
+        sub:[["필수 구색 중 재고 0","1,918"]] },
+    ]
+  },
+  {
+    name: "인천약품",
+    registered: 17425,
+    metrics: [
+      { key:"구색", label:"기준 구색 100% 달성", pct:87.1, grade:"b",
+        sub:[["양사 합의된 필수 구색수","10,796"],["현재 보유 중인 필수 구색수","9,398"]] },
+      { key:"재고", label:"재고 금액 40억 이상 확보", pct:171.2, grade:"s",
+        sub:[["더샵플러스에서 판매 가능한 구색수","17,425"],["재고 금액(억)","68.48"]] },
+      { key:"반품", label:"수거 2일 이내 반품 완료", pct:99.6, grade:"b",
+        sub:[["반품 완료 건수","271"],["2일 내 처리 건수","270"]] },
+      { key:"품절", label:"기준 구색 품절 발생률 0%", pct:9.7, grade:null,
+        sub:[["필수 구색 중 재고 0","1,398"]] },
+    ]
+  },
+];
+
+const gradeColorVar = { s:"var(--grade-s)", b:"var(--grade-b)", c:"var(--grade-c)", d:"var(--grade-d)" };
+
+function barPct(key, pct){
+  // 재고 항목은 40억 기준 초과달성이 흔해 200%로 캡, 나머지는 100% 기준
+  const cap = key === "재고" ? 200 : 100;
+  return Math.max(4, Math.min(100, (pct / cap) * 100));
+}
+
+function render(){
+  const board = document.getElementById("board");
+  board.innerHTML = DATA.map(p => `
+    <div class="partner">
+      <div class="p-top">
+        <div class="p-name">${p.name}</div>
+        <div class="p-highlight">
+          <span class="hl-num">${p.registered.toLocaleString()}</span>
+          <span class="hl-label">더샵플러스에서 판매 가능한 구색수</span>
+        </div>
+      </div>
+      <div class="p-metrics">
+        ${p.metrics.map(m => `
+          <div class="metric">
+            <div class="label">${m.key} · ${m.label}</div>
+            <div class="headline">
+              <span class="pct">${m.pct.toLocaleString()}%</span>
+              ${m.grade ? `<span class="grade ${m.grade}">${m.grade.toUpperCase()}</span>` : ""}
+            </div>
+            <div class="bar"><i style="width:${barPct(m.key, m.pct)}%;background:${m.grade ? gradeColorVar[m.grade] : "var(--grade-c)"}"></i></div>
+            <div class="sub">
+              ${m.sub.map(([l,v]) => `<span>${l} <b>${v}</b></span>`).join("")}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+render();
+</script>
