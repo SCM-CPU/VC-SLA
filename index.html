@@ -76,7 +76,7 @@
     color:var(--ink);
     font-family:"Noto Sans KR","Malgun Gothic",-apple-system,sans-serif;
     margin:0;
-    padding:28px 20px 48px;
+    padding:16px 20px 24px;
     -webkit-font-smoothing:antialiased;
   }
   .wrap{max-width:1080px;margin:0 auto;}
@@ -87,7 +87,7 @@
     justify-content:space-between;
     gap:16px;
     flex-wrap:wrap;
-    margin-bottom:24px;
+    margin-bottom:12px;
   }
   .brand{display:flex;align-items:center;gap:12px;}
   .brand-mark{
@@ -144,14 +144,14 @@
     display:flex;
     gap:10px;
     flex-wrap:wrap;
-    margin-bottom:20px;
+    margin-bottom:12px;
   }
   .legend span{
     display:inline-flex;align-items:center;gap:6px;
     font-size:12px;color:var(--muted);
     background:var(--surface);
     border:1px solid var(--border);
-    padding:5px 10px 5px 8px;
+    padding:3px 10px 3px 8px;
     border-radius:999px;
   }
   .dot{width:8px;height:8px;border-radius:50%;flex:none;}
@@ -159,7 +159,7 @@
   .board{
     display:flex;
     flex-direction:column;
-    gap:14px;
+    gap:10px;
   }
 
   .partner{
@@ -167,10 +167,10 @@
     border:1px solid var(--border);
     border-radius:16px;
     box-shadow:var(--shadow);
-    padding:18px 20px;
+    padding:12px 20px 14px;
     display:flex;
     flex-direction:column;
-    gap:16px;
+    gap:8px;
   }
 
   .p-top{
@@ -179,7 +179,7 @@
     gap:14px;
     flex-wrap:wrap;
   }
-  .p-name{font-size:23px;font-weight:900;letter-spacing:-.2px;flex:none;}
+  .p-name{font-size:22px;font-weight:900;letter-spacing:-.2px;flex:none;}
 
   .p-highlight{
     display:flex;
@@ -187,7 +187,7 @@
     gap:8px;
   }
   .p-highlight .hl-num{
-    font-size:26px;
+    font-size:24px;
     font-weight:900;
     color:var(--bright-blue);
     font-variant-numeric:tabular-nums;
@@ -202,18 +202,19 @@
   .p-metrics{
     display:grid;
     grid-template-columns:repeat(4,1fr);
-    gap:18px;
+    gap:14px;
   }
 
   .metric{
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap:6px;
     padding:2px 14px;
     border-right:1px solid var(--border);
   }
   .metric:last-child{border-right:none;}
 
+  .m-head{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;}
   .m-kicker{
     display:inline-block;
     align-self:flex-start;
@@ -251,7 +252,7 @@
     gap:8px;
   }
   .metric .pct{
-    font-size:24px;
+    font-size:22px;
     font-weight:900;
     font-variant-numeric:tabular-nums;
     letter-spacing:-.3px;
@@ -294,7 +295,7 @@
   }
 
   .foot{
-    margin-top:22px;
+    margin-top:12px;
     font-size:12px;
     color:var(--faint);
     line-height:1.6;
@@ -413,8 +414,10 @@ function render(){
       <div class="p-metrics">
         ${p.metrics.map(m => `
           <div class="metric" data-partner="${p.name}" data-metric="${m.key}">
-            <span class="m-kicker">${m.key}</span>
-            <div class="m-goal"><span class="goal-tag">목표</span>${m.label}</div>
+            <div class="m-head">
+              <span class="m-kicker">${m.key}</span>
+              <div class="m-goal"><span class="goal-tag">목표</span>${m.label}</div>
+            </div>
             <div class="headline">
               <span class="pct">${m.pct.toLocaleString()}%</span>
               ${m.grade ? `<span class="grade ${m.grade}">${m.grade.toUpperCase()}</span>` : ""}
