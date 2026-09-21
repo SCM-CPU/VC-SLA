@@ -317,9 +317,38 @@
     body{padding:20px 16px 40px;}
     .titles h1{font-size:19px;}
   }
+
+  .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .login-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:32px 28px;width:100%;max-width:340px;}
+  .login-card .brand-mark{margin-bottom:18px;}
+  .login-card h2{margin:0 0 4px;font-size:17px;font-weight:900;}
+  .login-card p{margin:0 0 20px;font-size:12.5px;color:var(--muted);}
+  .login-card input{width:100%;font-size:14px;font-family:inherit;color:var(--ink);background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px;}
+  .login-card input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .login-card button{width:100%;font-size:14px;font-family:inherit;font-weight:800;color:#fff;background:var(--accent);border:none;border-radius:8px;padding:11px 12px;cursor:pointer;margin-top:4px;}
+  :root[data-theme="dark"] .login-card button{color:#0F131F;}
+  .login-error{display:none;font-size:12.5px;color:var(--grade-d);margin:-4px 0 10px;}
+  .login-error.show{display:block;}
+  .who-badge{display:inline-flex;align-items:center;gap:8px;margin-left:10px;}
+  .who-badge button{font-size:12px;font-family:inherit;font-weight:700;color:var(--accent-ink);background:none;border:1px solid var(--border);border-radius:999px;padding:3px 11px;cursor:pointer;}
+  .who-badge button:hover{background:var(--surface-alt);}
 </style>
 
-<div class="wrap">
+<div class="login-screen" id="loginScreen" style="display:none;">
+  <div class="login-card">
+    <span class="brand-mark"><span class="bm-icon">+</span><span class="bm-the">the</span><span class="bm-shop">SHOP</span><span class="bm-plus">Plus+</span></span>
+    <h2>더샵플러스 SLA 현황</h2>
+    <p>계정 정보를 입력해 주세요.</p>
+    <form id="loginForm">
+      <input type="text" id="loginId" placeholder="아이디" autocomplete="username" required>
+      <input type="password" id="loginPw" placeholder="비밀번호" autocomplete="current-password" required>
+      <div class="login-error" id="loginError">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+      <button type="submit">로그인</button>
+    </form>
+  </div>
+</div>
+
+<div class="wrap" id="wrap" style="display:none;">
   <div class="topbar">
     <div class="brand">
       <span class="brand-mark"><span class="bm-icon">+</span><span class="bm-the">the</span><span class="bm-shop">SHOP</span><span class="bm-plus">Plus+</span></span>
@@ -329,8 +358,8 @@
       </div>
     </div>
     <div class="updated">
-      <div class="raw-links">RAW <a href="https://docs.google.com/spreadsheets/d/1bUZVql4OCH4PW-9zPN3d3xyRwBP0-8dCn_uL3plCWdI/edit" target="_blank" rel="noopener">백제</a> · <a href="https://docs.google.com/spreadsheets/d/1OMqiqYu0F_vvum1piV1WYOafo5e2G3KDVllU85f7jyA/edit" target="_blank" rel="noopener">복산</a> · <a href="https://docs.google.com/spreadsheets/d/1z05vnwfAV5Wscc-SgtuZ3wwpuOP-5aZTAcc_SvO1dyY/edit" target="_blank" rel="noopener">인천</a></div>
-      데이터 기준 <b id="updatedAt">2026. 9. 18.</b>
+      <div class="raw-links" id="rawLinks"></div>
+      데이터 기준 <b id="updatedAt">2026. 9. 18.</b><span class="who-badge"><span id="whoLabel"></span><button id="logoutBtn" type="button">로그아웃</button></span>
     </div>
   </div>
 
@@ -399,6 +428,57 @@ const DATA = [
 
 const gradeColorVar = { s:"var(--grade-s)", b:"var(--grade-b)", c:"var(--grade-c)", d:"var(--grade-d)" };
 
+// ponytail: 정적 페이지라 서버 인증 불가 — 화면 노출만 계정별로 가림(소스에는 3사 데이터 포함).
+const USERS = {
+  "관리자":     { pw:"1234", companies:["백제약품","복산나이스","인천약품"] },
+  "백제약품":   { pw:"1234", companies:["백제약품"] },
+  "복산나이스": { pw:"1234", companies:["복산나이스"] },
+  "인천약품":   { pw:"1234", companies:["인천약품"] },
+};
+const RAW_LABEL = { "백제약품":"백제", "복산나이스":"복산", "인천약품":"인천" };
+
+function currentUser(){
+  let id = null;
+  try{ id = sessionStorage.getItem("vcUser"); }catch(e){}
+  return id && USERS[id] ? { id, ...USERS[id] } : null;
+}
+function visibleData(){
+  const u = currentUser();
+  return u ? DATA.filter(p => u.companies.includes(p.name)) : [];
+}
+function showDashboard(){
+  const u = currentUser();
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("wrap").style.display = "";
+  document.getElementById("whoLabel").textContent = u.id + " 계정";
+  document.getElementById("rawLinks").innerHTML = "RAW " + DATA.filter(p => u.companies.includes(p.name)).map(p =>
+    `<a href="https://docs.google.com/spreadsheets/d/${p.sheetId}/edit" target="_blank" rel="noopener">${RAW_LABEL[p.name]}</a>`).join(" · ");
+  render();
+  syncLive();
+}
+function showLogin(){
+  document.getElementById("wrap").style.display = "none";
+  document.getElementById("loginScreen").style.display = "flex";
+}
+document.getElementById("loginForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const id = document.getElementById("loginId").value.trim();
+  const pw = document.getElementById("loginPw").value;
+  const u = USERS[id];
+  if(u && u.pw === pw){
+    try{ sessionStorage.setItem("vcUser", id); }catch(e){}
+    document.getElementById("loginError").classList.remove("show");
+    showDashboard();
+  } else {
+    document.getElementById("loginError").classList.add("show");
+  }
+});
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  try{ sessionStorage.removeItem("vcUser"); }catch(e){}
+  document.getElementById("loginForm").reset();
+  showLogin();
+});
+
 function barPct(key, pct){
   // 재고 항목은 40억 기준 초과달성이 흔해 200%로 캡, 나머지는 100% 기준
   const cap = key === "재고" ? 200 : 100;
@@ -407,7 +487,7 @@ function barPct(key, pct){
 
 function render(){
   const board = document.getElementById("board");
-  board.innerHTML = DATA.map(p => `
+  board.innerHTML = visibleData().map(p => `
     <div class="partner">
       <div class="p-top">
         <div class="p-name">${p.name}</div>
@@ -437,7 +517,6 @@ function render(){
     </div>
   `).join("");
 }
-render();
 
 // 구색 항목(양사 합의된 필수 구색수 / 현재 보유 중인 필수 구색수 / 달성률)을
 // 원본 구글시트("평가 제품 현황" 탭)에서 JSONP로 직접 읽어와 실시간 반영한다.
@@ -502,5 +581,6 @@ async function syncLive(){
   });
   render();
 }
-syncLive();
+
+if(currentUser()) showDashboard(); else showLogin();
 </script>
