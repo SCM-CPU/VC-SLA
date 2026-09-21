@@ -430,10 +430,10 @@ const gradeColorVar = { s:"var(--grade-s)", b:"var(--grade-b)", c:"var(--grade-c
 
 // ponytail: 정적 페이지라 서버 인증 불가 — 화면 노출만 계정별로 가림(소스에는 3사 데이터 포함).
 const USERS = {
-  "관리자":     { pw:"1234", companies:["백제약품","복산나이스","인천약품"] },
-  "백제약품":   { pw:"1234", companies:["백제약품"] },
-  "복산나이스": { pw:"1234", companies:["복산나이스"] },
-  "인천약품":   { pw:"1234", companies:["인천약품"] },
+  admin:  { pw:"1234", label:"관리자",     companies:["백제약품","복산나이스","인천약품"] },
+  baekje: { pw:"1234", label:"백제약품",   companies:["백제약품"] },
+  boksan: { pw:"1234", label:"복산나이스", companies:["복산나이스"] },
+  incheon:{ pw:"1234", label:"인천약품",   companies:["인천약품"] },
 };
 const RAW_LABEL = { "백제약품":"백제", "복산나이스":"복산", "인천약품":"인천" };
 
@@ -450,7 +450,7 @@ function showDashboard(){
   const u = currentUser();
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("wrap").style.display = "";
-  document.getElementById("whoLabel").textContent = u.id + " 계정";
+  document.getElementById("whoLabel").textContent = u.label + " 계정";
   document.getElementById("rawLinks").innerHTML = "RAW " + DATA.filter(p => u.companies.includes(p.name)).map(p =>
     `<a href="https://docs.google.com/spreadsheets/d/${p.sheetId}/edit" target="_blank" rel="noopener">${RAW_LABEL[p.name]}</a>`).join(" · ");
   render();
