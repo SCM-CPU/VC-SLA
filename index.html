@@ -259,6 +259,7 @@
     letter-spacing:-.3px;
   }
   .metric .days{font-size:17px;font-weight:900;color:var(--bright-blue);letter-spacing:-.2px;}
+  .metric .days.low{color:var(--grade-d);}
   .grade{
     display:inline-flex;
     align-items:center;
@@ -516,7 +517,7 @@ function render(){
             <div class="headline">
               <span class="pct">${m.pct > 100 ? "100%↑" : m.pct.toLocaleString() + "%"}</span>
               ${m.grade ? `<span class="grade ${m.grade}">${m.grade.toUpperCase()}</span>` : ""}
-              ${m.key === "재고" ? `<span class="days">(${stockDays(p, m)}일치)</span>` : ""}
+              ${m.key === "재고" ? `<span class="days${m.pct <= 100 ? " low" : ""}">(${stockDays(p, m)}일치)</span>` : ""}
             </div>
             <div class="bar"><i style="width:${barPct(m.key, m.pct)}%;background:${m.grade ? gradeColorVar[m.grade] : "var(--grade-c)"}"></i></div>
             <div class="sub">
