@@ -258,6 +258,7 @@
     font-variant-numeric:tabular-nums;
     letter-spacing:-.3px;
   }
+  .metric .days{font-size:17px;font-weight:900;color:var(--bright-blue);letter-spacing:-.2px;}
   .grade{
     display:inline-flex;
     align-items:center;
@@ -373,7 +374,7 @@
   <div class="board" id="board"></div>
 
   <div class="foot">
-    더샵플러스에서 판매 가능한 구색수는 재고가 연동되어 1개 이상 확보된 상품 수입니다. 필수 구색수는 대웅제약-협력도매 양사가 합의한 평가 대상 품목을 기준으로 산정됩니다. 품절 등급은 미발생률(100% - 품절 발생률) 기준으로 S 100% 이상 · A 95% 이상 · B 90% 이상 · C 85% 이상 · D 85% 미만입니다.
+    더샵플러스에서 판매 가능한 구색수는 재고가 연동되어 1개 이상 확보된 상품 수입니다. 필수 구색수는 대웅제약-협력도매 양사가 합의한 평가 대상 품목을 기준으로 산정됩니다. 품절 등급은 미발생률(100% - 품절 발생률) 기준으로 S 100% 이상 · A 95% 이상 · B 90% 이상 · C 85% 이상 · D 85% 미만입니다. 재고 항목의 '일치'는 재고 금액을 일평균 VC 매출(8월 VC 도매매출 ÷ 영업일 20일)로 나눈 값이며, 목표 초과 시 100%↑로 표시합니다.
   </div>
 </div>
 
@@ -381,6 +382,7 @@
 const DATA = [
   {
     name: "백제약품",
+    vcMonthly: 14.19,
     sheetId: "1bUZVql4OCH4PW-9zPN3d3xyRwBP0-8dCn_uL3plCWdI",
     registered: 10943,
     metrics: [
@@ -396,6 +398,7 @@ const DATA = [
   },
   {
     name: "복산나이스",
+    vcMonthly: 7.64,
     sheetId: "1OMqiqYu0F_vvum1piV1WYOafo5e2G3KDVllU85f7jyA",
     registered: 13469,
     metrics: [
@@ -411,6 +414,7 @@ const DATA = [
   },
   {
     name: "인천약품",
+    vcMonthly: 9.43,
     sheetId: "1z05vnwfAV5Wscc-SgtuZ3wwpuOP-5aZTAcc_SvO1dyY",
     registered: 17425,
     metrics: [
@@ -479,6 +483,12 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
   showLogin();
 });
 
+// 재고금액(억) ÷ 일평균 VC 매출(8월 VC 도매매출 ÷ 영업일 20일)
+function stockDays(p, m){
+  const eok = parseFloat(m.sub[1][1]);
+  return Math.round(eok / (p.vcMonthly / 20)).toLocaleString();
+}
+
 function barPct(key, pct){
   // 재고 항목은 40억 기준 초과달성이 흔해 200%로 캡, 나머지는 100% 기준
   const cap = key === "재고" ? 200 : 100;
@@ -504,8 +514,9 @@ function render(){
               <div class="m-goal"><span class="goal-tag">목표</span>${m.label}</div>
             </div>
             <div class="headline">
-              <span class="pct">${m.pct.toLocaleString()}%</span>
+              <span class="pct">${m.pct > 100 ? "100%↑" : m.pct.toLocaleString() + "%"}</span>
               ${m.grade ? `<span class="grade ${m.grade}">${m.grade.toUpperCase()}</span>` : ""}
+              ${m.key === "재고" ? `<span class="days">(${stockDays(p, m)}일치)</span>` : ""}
             </div>
             <div class="bar"><i style="width:${barPct(m.key, m.pct)}%;background:${m.grade ? gradeColorVar[m.grade] : "var(--grade-c)"}"></i></div>
             <div class="sub">
