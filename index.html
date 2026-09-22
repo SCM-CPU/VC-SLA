@@ -325,8 +325,8 @@
   .login-card .brand-mark{margin-bottom:18px;}
   .login-card h2{margin:0 0 4px;font-size:17px;font-weight:900;}
   .login-card p{margin:0 0 20px;font-size:12.5px;color:var(--muted);}
-  .login-card input{width:100%;font-size:14px;font-family:inherit;color:var(--ink);background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px;}
-  .login-card input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .login-card input,.login-card select{width:100%;font-size:14px;font-family:inherit;color:var(--ink);background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px;}
+  .login-card input:focus,.login-card select:focus{outline:2px solid var(--accent);outline-offset:1px;}
   .login-card button{width:100%;font-size:14px;font-family:inherit;font-weight:800;color:#fff;background:var(--accent);border:none;border-radius:8px;padding:11px 12px;cursor:pointer;margin-top:4px;}
   :root[data-theme="dark"] .login-card button{color:#0F131F;}
   .login-error{display:none;font-size:12.5px;color:var(--grade-d);margin:-4px 0 10px;}
@@ -342,7 +342,13 @@
     <h2>더샵플러스 SLA 현황</h2>
     <p>계정 정보를 입력해 주세요.</p>
     <form id="loginForm">
-      <input type="text" id="loginId" placeholder="아이디" autocomplete="username" required>
+      <select id="loginId" required>
+        <option value="" disabled selected>아이디 선택</option>
+        <option value="admin">관리자</option>
+        <option value="baekje">백제약품</option>
+        <option value="boksan">복산나이스</option>
+        <option value="incheon">인천약품</option>
+      </select>
       <input type="password" id="loginPw" placeholder="비밀번호" autocomplete="current-password" required>
       <div class="login-error" id="loginError">아이디 또는 비밀번호가 올바르지 않습니다.</div>
       <button type="submit">로그인</button>
