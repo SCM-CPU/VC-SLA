@@ -361,6 +361,7 @@
     </div>
     <div class="updated">
       <div class="raw-links" id="rawLinks"></div>
+      <div class="raw-links" id="soldoutLink" style="display:none;"><a href="soldout/">시장 품절약 현황 →</a></div>
       데이터 기준 <b id="updatedAt">2026. 9. 18.</b><span class="who-badge"><span id="whoLabel"></span><button id="logoutBtn" type="button">로그아웃</button></span>
     </div>
   </div>
@@ -458,6 +459,7 @@ function showDashboard(){
   document.getElementById("whoLabel").textContent = u.label + " 계정";
   document.getElementById("rawLinks").innerHTML = "RAW " + DATA.filter(p => u.companies.includes(p.name)).map(p =>
     `<a href="https://docs.google.com/spreadsheets/d/${p.sheetId}/edit" target="_blank" rel="noopener">${RAW_LABEL[p.name]}</a>`).join(" · ");
+  document.getElementById("soldoutLink").style.display = u.id === "admin" ? "" : "none";
   render();
   syncLive();
 }

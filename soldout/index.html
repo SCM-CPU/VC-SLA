@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>시장 품절약 현황</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#EEF1F8; --surface:#FFFFFF; --surface-alt:#F5F7FC;
+    --ink:#141A2B; --muted:#5B6478; --faint:#8991A6; --border:#E2E6F1;
+    --accent:#28407F; --accent-ink:#1B2C5C; --accent-soft:#E7ECFB;
+    --new:#0B63F6; --new-bg:#E5EEFE;
+    --hot:#CC3B3F; --hot-bg:#FADDDE;
+    --warn:#C98A0A; --warn-bg:#FBF0DA;
+    --cell:#28407F; --cell-ink:#FFFFFF;
+    --shadow:0 1px 2px rgba(20,26,43,.04), 0 8px 24px -12px rgba(20,26,43,.14);
+    --logo-blue:#4A55E0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F131F; --surface:#171C2C; --surface-alt:#1E2437;
+      --ink:#EEF1F8; --muted:#9AA3BC; --faint:#6B7390; --border:#2B3149;
+      --accent:#7C97E8; --accent-ink:#DCE4FA; --accent-soft:#25335F;
+      --new:#5B9CFF; --new-bg:#1E2C4E;
+      --hot:#F17E82; --hot-bg:#3D1E20;
+      --warn:#E8B85A; --warn-bg:#3A2F17;
+      --cell:#5B74C8; --cell-ink:#FFFFFF;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F131F; --surface:#171C2C; --surface-alt:#1E2437;
+    --ink:#EEF1F8; --muted:#9AA3BC; --faint:#6B7390; --border:#2B3149;
+    --accent:#7C97E8; --accent-ink:#DCE4FA; --accent-soft:#25335F;
+    --new:#5B9CFF; --new-bg:#1E2C4E;
+    --hot:#F17E82; --hot-bg:#3D1E20;
+    --warn:#E8B85A; --warn-bg:#3A2F17;
+    --cell:#5B74C8; --cell-ink:#FFFFFF;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:"Noto Sans KR","Malgun Gothic",-apple-system,sans-serif;margin:0;padding:20px 20px 40px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1400px;margin:0 auto;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{display:inline-flex;align-items:center;gap:5px;}
+  .bm-icon{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:var(--logo-blue);color:#fff;font-size:13px;font-weight:900;line-height:1;}
+  .bm-the{font-size:16px;font-style:italic;font-weight:500;color:var(--logo-blue);}
+  .bm-shop{font-size:17px;font-weight:900;letter-spacing:.2px;color:var(--logo-blue);}
+  .bm-plus{font-size:12px;font-weight:700;color:#fff;background:var(--logo-blue);padding:3px 9px;border-radius:999px;}
+  .titles h1{margin:0;font-size:22px;font-weight:900;letter-spacing:-.2px;text-wrap:balance;}
+  .titles p{margin:2px 0 0;font-size:13px;color:var(--muted);}
+  .updated{font-size:12px;color:var(--faint);text-align:right;font-variant-numeric:tabular-nums;}
+  .updated b{color:var(--muted);font-weight:700;}
+
+  .dates{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;margin-bottom:8px;}
+  .dates button{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:62px;padding:7px 10px;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-variant-numeric:tabular-nums;}
+  .dates button .d{font-size:14px;font-weight:900;color:var(--ink);}
+  .dates button .w{font-size:11px;}
+  .dates button:hover{background:var(--surface-alt);}
+  .dates button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--cell-ink);}
+  .dates button[aria-pressed="true"] .d{color:var(--cell-ink);}
+  :root[data-theme="dark"] .dates button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);}
+
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px;}
+  .tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:12px 16px;}
+  .tile .k{font-size:12px;font-weight:700;color:var(--muted);}
+  .tile .v{font-size:28px;font-weight:900;letter-spacing:-.4px;font-variant-numeric:tabular-nums;margin-top:2px;}
+  .tile .v small{font-size:13px;font-weight:700;color:var(--muted);margin-left:3px;}
+  .tile.new .v{color:var(--new);}
+  .tile.hot .v{color:var(--hot);}
+
+  .main{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:12px;margin-bottom:12px;align-items:start;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:14px 18px 16px;}
+  .card h2{margin:0 0 10px;font-size:15px;font-weight:900;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .card h2 small{font-size:12px;font-weight:500;color:var(--muted);}
+
+  .list{list-style:none;margin:0;padding:0;}
+  .list li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--border);}
+  .list li:first-child{border-top:none;}
+  .rk{font-size:13px;font-weight:900;color:var(--faint);font-variant-numeric:tabular-nums;text-align:center;}
+  .list li:nth-child(-n+3) .rk{color:var(--accent-ink);}
+  .nm{font-size:14px;font-weight:700;line-height:1.35;overflow-wrap:anywhere;}
+  .mk{display:block;font-size:11.5px;font-weight:400;color:var(--muted);margin-top:1px;}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+  .b{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;}
+  .b.new{color:var(--new);background:var(--new-bg);}
+  .b.streak{color:var(--warn);background:var(--warn-bg);}
+  .b.hot{color:var(--hot);background:var(--hot-bg);}
+  .b.dup{color:var(--muted);background:var(--surface-alt);}
+  .gone{margin:10px 0 0;padding-top:10px;border-top:1px dashed var(--border);font-size:12px;color:var(--muted);line-height:1.6;}
+  .gone b{color:var(--ink);}
+
+  .top{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
+  .top li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:baseline;}
+  .top .tn{font-size:13px;font-weight:700;overflow-wrap:anywhere;}
+  .top .tc{font-size:12px;font-weight:900;color:var(--accent-ink);font-variant-numeric:tabular-nums;}
+  .top .bar{grid-column:1 / -1;height:6px;border-radius:3px;background:var(--surface-alt);overflow:hidden;}
+  .top .bar i{display:block;height:100%;border-radius:3px;background:var(--accent);}
+  .top .now{color:var(--hot);font-size:11px;font-weight:800;margin-left:6px;}
+
+  .flow-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+  .flow-head h2{margin:0;}
+  .toggle{font-size:12px;font-weight:700;color:var(--accent-ink);background:none;border:1px solid var(--border);border-radius:999px;padding:4px 12px;cursor:pointer;}
+  .toggle:hover{background:var(--surface-alt);}
+  .scroll{overflow-x:auto;}
+  table{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums;}
+  th,td{padding:0;text-align:center;font-size:12px;}
+  thead th{position:sticky;top:0;background:var(--surface);color:var(--muted);font-weight:700;padding:6px 4px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  thead th.sel{color:var(--accent-ink);background:var(--accent-soft);}
+  tbody th{text-align:left;font-weight:700;font-size:12.5px;padding:5px 12px 5px 0;min-width:240px;max-width:340px;border-bottom:1px solid var(--border);position:sticky;left:0;background:var(--surface);}
+  tbody th span{display:block;font-weight:400;font-size:11px;color:var(--muted);}
+  td{border-bottom:1px solid var(--border);padding:4px;min-width:44px;}
+  td.sel{background:var(--accent-soft);}
+  td .c{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;border-radius:6px;background:var(--cell);color:var(--cell-ink);font-size:11.5px;font-weight:800;}
+  td.cnt{font-weight:900;color:var(--accent-ink);min-width:44px;}
+  .flow-note{margin:8px 0 0;font-size:12px;color:var(--faint);}
+
+  .help{margin-top:12px;background:var(--accent-soft);border-radius:14px;padding:14px 18px;font-size:13px;color:var(--accent-ink);line-height:1.65;}
+  .help b{font-weight:900;}
+  .help .form{margin:6px 0 0;padding-left:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;}
+  .src{margin-top:14px;font-size:12px;color:var(--faint);line-height:1.6;}
+
+  @media (max-width:980px){
+    .main{grid-template-columns:1fr;}
+    .tiles{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:480px){
+    body{padding:16px 16px 32px;}
+    .titles h1{font-size:19px;}
+    tbody th{min-width:150px;max-width:150px;}
+    .list li{grid-template-columns:24px minmax(0,1fr);}
+    .list li .badges{grid-column:2;justify-content:flex-start;}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark"><span class="bm-icon">+</span><span class="bm-the">the</span><span class="bm-shop">SHOP</span><span class="bm-plus">Plus+</span></span>
+      <div class="titles">
+        <h1>시장 품절약 현황</h1>
+        <p>대웅제약 일일 품절 의약품 순위 · 날짜별 변화</p>
+      </div>
+    </div>
+    <div class="updated" id="updated"></div>
+  </div>
+
+  <div class="dates" id="dates" role="group" aria-label="날짜 선택"></div>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="main">
+    <section class="card">
+      <h2 id="listTitle"></h2>
+      <ul class="list" id="list"></ul>
+      <p class="gone" id="gone"></p>
+    </section>
+    <section class="card">
+      <h2>자주 품절되는 시장 품절약 <small>수신 <span id="nSnap"></span>회 중 등장 횟수</small></h2>
+      <ol class="top" id="top"></ol>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="flow-head">
+      <h2>날짜별 흐름 <small>칸의 숫자 = 그날 순위</small></h2>
+      <button class="toggle" id="toggleAll" type="button"></button>
+    </div>
+    <div class="scroll"><table id="flow"></table></div>
+    <p class="flow-note" id="flowNote"></p>
+  </section>
+
+  <div class="help">
+    <b>거래처에서 찾는 약이 품절이라면?</b> 회사 메시지방에 아래 양식으로 남겨주세요. 시장에는 있는데 협력도매에 없는 약은 유통지원팀이 도매와 직접 소통합니다.
+    <ul class="form">
+      <li>① 거래처 코드</li><li>② 거래처명</li><li>③ VC도매</li><li>④ 구색(다른 도매에서 원활히 판매 중인 제품)</li><li>⑤ 품절(시장 내 완전 품절은 아니나 구하기 힘든 제품)</li>
+    </ul>
+  </div>
+  <div class="src" id="src"></div>
+</div>
+
+<script>
+const RAW = {"2026-09-02": [["1", "산텐 가리유니 점안액", "한국산텐제약(주)"], ["2", "라벤다 크림 15g", "에이프로젠제약(주)"], ["3", "마그밀 정 500mg", "삼남제약"], ["4", "릭시아나정 30mg", "한국다이이찌산쿄(주)"], ["5", "세비카에이치씨티정5/40/12.5mg 28T 다이이찌", "한국다이이찌산쿄 주식회사"], ["6", "릭시아나정 60mg", "한국다이이찌산쿄(주)"], ["7", "이모튼 캡슐 300mg", "종근당"], ["8", "레가론캅셀140mg", "부광약품공업"], ["9", "브로나제장용정/300정", "마더스제약"], ["10", "직듀오 서방정 10/1000mg", "한국아스트라제네카"], ["11", "듀락칸이지시럽(15ML/20P)", "제이더블유중외제약(주)"], ["12", "리포직 점안겔", "(주)바슈헬스코리아"], ["13", "디푸코 연고 0.3% 10g", "JW신약"], ["14", "듀라티얼즈 안연고", "한국알콘(주)"], ["15", "아젤리아크림", "바이엘코리아(주)"], ["16", "티어린 프리 점안액 0.5mL", "(주)옵투스제약"], ["17", "올메텍 정 10mg", "(주)대웅제약"], ["18", "유리토스 정", "종근당"], ["19", "코대원 정", "대원제약"], ["20", "리포직 이디오 점안겔", "(주)바슈헬스코리아"]], "2026-09-08": [["1", "리포직 점안겔", "(주)바슈헬스코리아"], ["2", "라벤다 크림 15g", "에이프로젠제약(주)"], ["3", "릭시아나정 30mg", "한국다이이찌산쿄(주)"], ["4", "릭시아나정 60mg", "한국다이이찌산쿄(주)"], ["5", "마그밀 정 500mg", "삼남제약"], ["6", "아젤리아크림(30G)", "한국메나리니"], ["7", "이모튼 300mg/30캡슐", "종근당"], ["8", "브로나제장용정/300정", "마더스제약"], ["9", "듀라티얼즈 안연고", "한국알콘(주)"], ["10", "듀락칸이지시럽(15ML/20P)", "제이더블유중외제약(주)"], ["11", "딜라트렌에스알캅셀8mg 30C 종근당", "종근당"], ["12", "티어린 프리 점안액 0.5mL", "(주)옵투스제약"], ["13", "울트라셋 정", "에스케이케미칼 생명과학부문"], ["14", "씨투스 건조시럽 100g", "삼아제약"], ["15", "세비카에이치씨티정5/40/12.5mg 28T 다이이찌", "한국다이이찌산쿄 주식회사"], ["16", "리포직 이디오 점안겔", "(주)바슈헬스코리아"], ["17", "조인스에프정300mg/30T", "에스케이케미칼(주)"], ["18", "레가론캅셀140mg", "부광약품공업"], ["19", "피알디 현탁시럽 0.1%", "한림제약"], ["20", "종근당 알긴엔액 30ml/20P", "종근당"]], "2026-09-09": [["1", "라벤다 크림 15g", "에이프로젠제약(주)"], ["2", "릭시아나정 30mg", "한국다이이찌산쿄(주)"], ["3", "리포직 점안겔", "(주)바슈헬스코리아"], ["4", "릭시아나정 60mg", "한국다이이찌산쿄(주)"], ["5", "아젤리아크림(30G)", "레오파마(유)"], ["6", "듀락칸이지시럽(15ML/20P)", "제이더블유중외제약(주)"], ["7", "마그밀 정 500mg", "삼남제약"], ["8", "듀라티얼즈 안연고", "한국알콘(주)"], ["9", "이모튼 캡슐 300mg", "종근당"], ["10", "레가론캅셀140mg", "부광약품공업"], ["11", "직듀오 서방정 10/1000mg", "한국아스트라제네카"], ["12", "유리토스 정", "종근당"], ["13", "세비카 에이치씨티 정 5/40/12.5mg", "한국다이이찌산쿄 주식회사"], ["14", "종근당 알긴엔액 30ml/20P", "종근당"], ["15", "딜라트렌 에스알 캡슐 8mg", "종근당"], ["16", "티어린 프리 점안액 0.5mL", "(주)옵투스제약"], ["17", "브로나제장용정/300정", "마더스제약"], ["18", "울트라셋 정", "에스케이케미칼 생명과학부문"], ["19", "제일 베오바정 50mg/30T", "제일약품(처"], ["20", "라니넥스 나잘스프레이", "(주)바이넥스"]], "2026-09-10": [["1", "릭시아나정 30mg", "한국다이이찌산쿄(주)"], ["2", "릭시아나정 60mg", "한국다이이찌산쿄(주)"], ["3", "리포직 점안겔", "(주)바슈헬스코리아"], ["4", "듀락칸이지시럽(15ML/20P)", "제이더블유중외제약(주)"], ["5", "라벤다 크림 15g", "에이프로젠제약(주)"], ["6", "듀라티얼즈 안연고", "한국알콘(주)"], ["7", "아젤리아크림", "레오파마(유)"], ["8", "레가론캅셀140mg", "부광약품공업"], ["9", "이모튼 캡슐 300mg", "종근당"], ["10", "울트라셋 정", "에스케이케미칼 생명과학부문"], ["11", "마그밀 정 500mg", "삼남제약"], ["12", "포러스 안연고 5g", "삼일엘러간"], ["13", "세비카 에이치씨티 정 5/40/12.5mg", "한국다이이찌산쿄 주식회사"], ["14", "코대원정5mg", "대원제약"], ["15", "종근당 알긴엔액 30ml/20P", "종근당"], ["16", "나조넥스 나잘 스프레이 140dose", "한국오가논"], ["17", "라니넥스 나잘스프레이", "(주)바이넥스"], ["18", "릭시아나 정 15mg", "한국다이이찌산쿄 주식회사"], ["19", "로게인5%폼에어로졸60g 3캔", "kenvue"], ["20", "티어린 프리 점안액 0.5mL", "(주)옵투스제약"]], "2026-09-11": [["1", "라벤다 크림 15g", "에이프로젠제약(주)"], ["2", "릭시아나정 60mg", "한국다이이찌산쿄(주)"], ["3", "레가론캅셀140mg", "부광약품공업"], ["4", "릭시아나정 30mg", "한국다이이찌산쿄(주)"], ["5", "리포직 점안겔", "(주)바슈헬스코리아"], ["6", "듀라티얼즈 안연고", "한국알콘(주)"], ["7", "울트라셋 정", "에스케이케미칼 생명과학부문"], ["8", "조인스에프정300mg/30T", "에스케이케미칼(주)"], ["9", "듀락칸이지시럽(15ML/20P)", "제이더블유중외제약(주)"], ["10", "코대원 정", "대원제약"], ["11", "유리토스 정", "종근당"], ["12", "이모튼 300mg/30캡슐", "종근당"], ["13", "아젤리아크림(30G)", "레오파마(유)"], ["14", "종근당 알긴엔액 30ml/20P", "종근당"], ["15", "세비카에이치씨티정5/40/12.5mg 28T 다이이찌", "한국다이이찌산쿄 주식회사"], ["16", "티어린 프리 점안액 0.5mL", "(주)옵투스제약"], ["17", "마그밀 정 500mg", "삼남제약"], ["18", "피알디 현탁시럽 0.1%", "한림제약"], ["19", "한미 플루 현탁용 분말 6mg/mL 50mL", "한미약품"], ["20", "보령바이오 아스트릭스 캡슐 100mg", "보령"]], "2026-09-14": [["1", "듀락칸이지시럽(15ML/20P)", "제이더블유중외제약"], ["2", "제일 베오바정 50mg/30T", "제일약품(처"], ["3", "조인스에프정300mg/30T", "에스케이케미칼(주)"], ["4", "세비안관류제(20/20A)", "휴온스"], ["5", "로게인5%폼에어로졸60g 3캔", "kenvue"], ["6", "그린 아나프리스프레이/25ml", "그린제약"], ["7", "제일 베오바정 50mg/30T", "제일약품(처"], ["8", "아젤리아 크림", "레오파마(유)"], ["9", "라벤다 크림 15g", "에이프로젠제약(주)"], ["10", "듀라티얼즈 안연고", "한국알콘(주)"], ["11", "한미 플루 현탁용 분말 6mg/mL 50mL", "한미약품"], ["12", "씨투스 건조시럽 100g", "삼아제약"], ["13", "듀락칸 이지 시럽 500mL", "JW중외제약"], ["14", "리포직 점안겔", "(주)바슈헬스코리아"], ["15", "릭시아나정 60mg", "한국다이이찌산쿄(주)"], ["16", "레가론캅셀140mg", "부광약품공업"], ["17", "릭시아나정 30mg", "한국다이이찌산쿄(주)"], ["18", "이모튼 캡슐 300mg", "종근당"], ["19", "알룬 정", "휴온스"], ["20", "데소나 크림 0.05% 30g", "주식회사제뉴원사이언스"]], "2026-09-15": [["1", "릭시아나정 60mg", "한국다이이찌산쿄(주)"], ["2", "릭시아나정 30mg", "한국다이이찌산쿄(주)"], ["3", "리포직 점안겔", "(주)바슈헬스코리아"], ["4", "이모튼 캡슐 300mg", "종근당"], ["5", "라벤다 크림 15g", "에이프로젠제약(주)"], ["6", "티어린 프리 점안액 0.5mL", "(주)옵투스제약"], ["7", "듀락칸이지시럽(15ML/20P)", "제이더블유중외제약(주)"], ["8", "아젤리아크림", "레오파마(유)"], ["9", "듀라티얼즈 안연고", "한국알콘(주)"], ["10", "코대원 정", "대원제약"], ["11", "딜라트렌 에스알 캡슐 8mg", "종근당"], ["12", "세비카 에이치씨티 정 10/40/12.5mg", "한국다이이찌산쿄 주식회사"], ["13", "마그밀 정 500mg", "삼남제약"], ["14", "레가론 캡슐 140", "부광약품(주)"], ["15", "울트라셋정 100T", "한국얀센"], ["16", "세비카 에이치씨티 정 5/40/12.5mg", "한국다이이찌산쿄 주식회사"], ["17", "미라펙스정0.125mg", "한국베링거인겔하임"], ["18", "라니넥스 나잘스프레이", "(주)바이넥스"], ["19", "로게인5%폼에어로졸60g 3캔", "kenvue"], ["20", "종근당 알긴엔액 30ml/20P", "종근당"]], "2026-09-16": [["1", "라벤다 크림 15g", "에이프로젠제약(주)"], ["2", "리포직 점안겔", "(주)바슈헬스코리아"], ["3", "릭시아나정 30mg", "한국다이이찌산쿄(주)"], ["4", "듀라티얼즈 안연고", "한국알콘(주)"], ["5", "이모튼 300mg/30캡슐", "종근당"], ["6", "릭시아나정60mg(PTP) 28T 다이이찌", "한국다이이찌산쿄(주)"], ["7", "아젤리아크림(튜브) 30G 레오파마(유)", "레오파마(유)"], ["8", "마그밀 정 500mg", "삼남제약"], ["9", "코대원 정", "대원제약"], ["10", "듀락칸이지시럽(15ML/20P)", "제이더블유중외제약"], ["11", "티어린 프리 점안액 0.5mL", "(주)옵투스제약"], ["12", "세비카 에이치씨티 정 5/40/12.5mg", "한국다이이찌산쿄 주식회사"], ["13", "레가론캅셀140mg", "부광약품공업"], ["14", "울트라셋정 100T 한국얀센", "한국얀센(향남)"], ["15", "라니넥스 나잘스프레이", "(주)바이넥스"], ["16", "리포직 이디오 점안겔", "(주)바슈헬스코리아"], ["17", "세비카 에이치씨티 정 10/40/12.5mg", "한국다이이찌산쿄 주식회사"], ["18", "알긴엔액30ml 20P 종근당", "종근당"], ["19", "조인스에프정300mg/30T", "에스케이케미칼(주)"], ["20", "피알디 현탁시럽 0.1%", "한림제약"]], "2026-09-17": [["1", "라벤다 크림 15g", "에이프로젠제약(주)"], ["2", "릭시아나정 60mg", "한국다이이찌산쿄(주)"], ["3", "릭시아나정 30mg", "한국다이이찌산쿄(주)"], ["4", "이모튼 300mg/30캡슐", "종근당"], ["5", "리포직 점안겔", "(주)바슈헬스코리아"], ["6", "레가론 캡슐 140", "부광약품(주)"], ["7", "듀락칸이지시럽(15ML/20P)", "제이더블유중외제약"], ["8", "티어린 프리 점안액 0.5mL", "(주)옵투스제약"], ["9", "듀라티얼즈 안연고", "한국알콘(주)"], ["10", "아젤리아크림(30G)", "바이엘코리아(주)"], ["11", "세비카 에이치씨티 정 5/40/12.5mg", "한국다이이찌산쿄 주식회사"], ["12", "울트라셋정 100T 한국얀센", "한국얀센(향남)"], ["13", "세비카 에이치씨티 정 10/40/12.5mg", "한국다이이찌산쿄 주식회사"], ["14", "코대원 정", "대원제약"], ["15", "알긴엔액30ml 20P 종근당", "종근당"], ["16", "시카포스 겔", "넥스팜코리아"], ["17", "로게인5%폼에어로졸60g 3캔", "kenvue"], ["18", "박테로신 연고 15g", "주식회사제뉴원사이언스"], ["19", "피알디 현탁시럽 0.1%", "한림제약"], ["20", "유리토스 정", "종근당"]], "2026-09-18": [["1", "릭시아나정 60mg", "한국다이이찌산쿄(주)"], ["2", "라벤다 크림 15g", "에이프로젠제약(주)"], ["3", "릭시아나정30mg(PTP) 28T 다이이찌", "한국다이이찌산쿄(주)"], ["4", "이모튼 300mg/30캡슐", "종근당"], ["5", "티어린 프리 점안액 0.5mL", "(주)옵투스제약"], ["6", "리포직 점안겔", "(주)바슈헬스코리아"], ["7", "듀락칸이지시럽(15ML/20P)", "제이더블유중외제약(주)"], ["8", "울트라셋정 100T 한국얀센", "한국얀센(향남)"], ["9", "듀라티얼즈 안연고", "한국알콘(주)"], ["10", "세비카에이치씨티정10/40/12.5mg 28T 다이이찌", "한국다이이찌산쿄 주식회사"], ["11", "아젤리아크림(30G)", "레오파마(유)"], ["12", "세비카에이치씨티정5/40/12.5mg 28T 다이이찌", "한국다이이찌산쿄 주식회사"], ["13", "레가론캅셀140mg", "부광약품공업"], ["14", "포러스 안연고 5g", "삼일엘러간"], ["15", "유리토스 정", "종근당"], ["16", "피알디 현탁시럽 0.1%", "한림제약"], ["17", "코대원 정", "대원제약"], ["18", "라니넥스 나잘스프레이", "(주)바이넥스"], ["19", "나조넥스 나잘 스프레이 140dose", "한국오가논"], ["20", "박테로신 연고 15g", "주식회사제뉴원사이언스"]], "2026-09-21": [["1", "밴드골드 밴드포어 부직반창고(종이반창고/살색/개별포장)", "밴드골드"], ["2", "밴드골드 밴드포어 부직반창고(종이반창고/살색/개별포장)", "밴드골드"], ["3", "토스롱에스액-(20ml*5P)", "동성제약"], ["4", "제일 베오바정 50mg/30T", "제일약품(처"], ["5", "나조넥스 나잘 스프레이 140dose", "한국오가논"], ["6", "동아 챔프알러논액 5ml*10P", "동아제약"], ["7", "세비안관류제(20/20A)", "휴온스"], ["8", "아젤리아크림", "바이엘코리아(주)"], ["9", "블레파졸", "삼일제약"], ["10", "이모튼 300mg/30캡슐", "종근당"], ["11", "라벤다 크림 15g", "에이프로젠제약(주)"], ["12", "박테로신 연고 15g", "주식회사제뉴원사이언스"], ["13", "리포직 점안겔", "(주)바슈헬스코리아"], ["14", "피타스틴 정 1mg", "알리코제약(주)"], ["15", "세비카 에이치씨티 정 5/40/12.5mg", "한국다이이찌산쿄 주식회사"], ["16", "라니넥스 나잘스프레이", "(주)바이넥스"], ["17", "티어린 프리 점안액 0.5mL", "(주)옵투스제약"], ["18", "리포직 이디오 점안겔", "(주)바슈헬스코리아"], ["19", "훼로바-유 서방정", "부광약품(주)"], ["20", "나조넥스 나잘스프레이 140dose", "한국엠에스디(주)"]]};
+
+const DATES = Object.keys(RAW).sort();
+const WD = ["일","월","화","수","목","금","토"];
+const norm = s => s.replace(/\s+/g, "");
+const keyOf = r => norm(r.name) + "|" + r.maker;
+const md = d => { const [, m, dd] = d.split("-"); return (+m) + "/" + (+dd); };
+const wd = d => WD[new Date(d + "T00:00:00").getDay()];
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+// 날짜별로 동일 품목(약품명+제약사)은 하나로 묶고 건수를 센다
+const DAY = {};
+DATES.forEach(d => {
+  const m = new Map();
+  RAW[d].forEach(([rank, name, maker]) => {
+    const k = keyOf({ name, maker });
+    if (m.has(k)) m.get(k).n++;
+    else m.set(k, { key: k, rank: +rank, name, maker, n: 1 });
+  });
+  DAY[d] = m;
+});
+
+const APPEAR = new Map();
+DATES.forEach(d => DAY[d].forEach((it, k) => {
+  if (!APPEAR.has(k)) APPEAR.set(k, { name: it.name, maker: it.maker, days: [] });
+  APPEAR.get(k).days.push(d);
+}));
+
+const LATEST = DATES[DATES.length - 1];
+let selected = LATEST;
+let showAll = false;
+
+function streakAt(k, idx){
+  let s = 0;
+  for (let i = idx; i >= 0 && DAY[DATES[i]].has(k); i--) s++;
+  return s;
+}
+
+function renderDates(){
+  const box = document.getElementById("dates");
+  box.replaceChildren();
+  [...DATES].reverse().forEach(d => {
+    const b = el("button");
+    b.type = "button";
+    b.setAttribute("aria-pressed", d === selected ? "true" : "false");
+    b.append(el("span", "d", md(d)), el("span", "w", wd(d)));
+    b.onclick = () => { selected = d; renderAll(); };
+    box.append(b);
+  });
+}
+
+function renderTiles(idx){
+  const cur = DAY[DATES[idx]];
+  const prev = idx > 0 ? DAY[DATES[idx - 1]] : null;
+  const fresh = prev ? [...cur.keys()].filter(k => !prev.has(k)).length : null;
+  const gone = prev ? [...prev.keys()].filter(k => !cur.has(k)).length : null;
+  const long = [...cur.keys()].filter(k => streakAt(k, idx) >= 5).length;
+  const defs = [
+    ["품절 품목", cur.size, "개", ""],
+    ["신규 진입", fresh == null ? "-" : fresh, fresh == null ? "" : "개", "new"],
+    ["해소(순위 이탈)", gone == null ? "-" : gone, gone == null ? "" : "개", ""],
+    ["연속 5회 이상", long, "개", "hot"],
+  ];
+  const box = document.getElementById("tiles");
+  box.replaceChildren();
+  defs.forEach(([k, v, u, cls]) => {
+    const t = el("div", "tile " + cls);
+    const val = el("div", "v", String(v));
+    if (u) val.append(el("small", "", u));
+    t.append(el("div", "k", k), val);
+    box.append(t);
+  });
+}
+
+function renderList(idx){
+  const d = DATES[idx];
+  const cur = DAY[d];
+  const prev = idx > 0 ? DAY[DATES[idx - 1]] : null;
+  document.getElementById("listTitle").replaceChildren(
+    document.createTextNode(md(d) + " (" + wd(d) + ") 품절 순위 "),
+    el("small", "", "전 회차 대비 변화 표시")
+  );
+  const ul = document.getElementById("list");
+  ul.replaceChildren();
+  [...cur.values()].sort((a, b) => a.rank - b.rank).forEach(it => {
+    const li = el("li");
+    const nm = el("div", "nm", it.name);
+    nm.append(el("span", "mk", it.maker));
+    const badges = el("div", "badges");
+    if (prev && !prev.has(it.key)) badges.append(el("span", "b new", "NEW"));
+    const s = streakAt(it.key, idx);
+    if (s >= 2) badges.append(el("span", "b " + (s >= 5 ? "hot" : "streak"), "연속 " + s + "회"));
+    if (it.n > 1) badges.append(el("span", "b dup", it.n + "건"));
+    li.append(el("div", "rk", String(it.rank)), nm, badges);
+    ul.append(li);
+  });
+  const g = document.getElementById("gone");
+  if (prev) {
+    const names = [...prev.values()].filter(p => !cur.has(p.key)).map(p => p.name);
+    g.replaceChildren();
+    g.append(el("b", "", "전 회차(" + md(DATES[idx - 1]) + ")에는 있었지만 빠진 품목 "), document.createTextNode(names.length ? names.join(", ") : "없음"));
+  } else {
+    g.textContent = "첫 회차라 비교 대상이 없습니다.";
+  }
+}
+
+function renderTop(){
+  document.getElementById("nSnap").textContent = DATES.length;
+  const ol = document.getElementById("top");
+  ol.replaceChildren();
+  [...APPEAR.values()].sort((a, b) => b.days.length - a.days.length || b.days.at(-1).localeCompare(a.days.at(-1))).slice(0, 10).forEach(a => {
+    const li = el("li");
+    const n = el("span", "tn", a.name);
+    if (a.days.at(-1) === LATEST) n.append(el("span", "now", "현재 품절 중"));
+    li.append(n, el("span", "tc", a.days.length + "회"));
+    const bar = el("div", "bar");
+    const i = el("i");
+    i.style.width = (a.days.length / DATES.length * 100) + "%";
+    bar.append(i);
+    li.append(bar);
+    ol.append(li);
+  });
+}
+
+function renderFlow(){
+  const t = document.getElementById("flow");
+  t.replaceChildren();
+  const head = el("tr");
+  head.append(el("th", "", "약품"));
+  head.append(el("th", "", "횟수"));
+  [...DATES].reverse().forEach(d => head.append(el("th", d === selected ? "sel" : "", md(d))));
+  const thead = el("thead");
+  thead.append(head);
+  t.append(thead);
+  const body = el("tbody");
+  const rows = [...APPEAR.entries()]
+    .filter(([, a]) => showAll || a.days.length >= 2)
+    .sort((x, y) => y[1].days.length - x[1].days.length || y[1].days.at(-1).localeCompare(x[1].days.at(-1)));
+  rows.forEach(([k, a]) => {
+    const tr = el("tr");
+    const th = el("th", "", a.name);
+    th.scope = "row";
+    th.append(el("span", "", a.maker));
+    tr.append(th);
+    tr.append(el("td", "cnt", String(a.days.length)));
+    [...DATES].reverse().forEach(d => {
+      const td = el("td", d === selected ? "sel" : "");
+      const it = DAY[d].get(k);
+      if (it) td.append(el("span", "c", String(it.rank)));
+      tr.append(td);
+    });
+    body.append(tr);
+  });
+  t.append(body);
+  const total = APPEAR.size;
+  document.getElementById("toggleAll").textContent = showAll ? "2회 이상 등장한 품목만 보기" : "1회만 등장한 품목까지 모두 보기 (" + total + "개)";
+  document.getElementById("flowNote").textContent = showAll ? "전체 " + total + "개 품목" : "2회 이상 등장한 " + rows.length + "개 품목 (전체 " + total + "개)";
+}
+
+function renderAll(){
+  const idx = DATES.indexOf(selected);
+  renderDates(); renderTiles(idx); renderList(idx); renderFlow();
+}
+
+document.getElementById("toggleAll").onclick = () => { showAll = !showAll; renderFlow(); };
+document.getElementById("updated").replaceChildren(document.createTextNode("최근 수신 "), el("b", "", md(LATEST) + " (" + wd(LATEST) + ")"));
+document.getElementById("src").textContent = "출처: 대웅제약 의약품 품절품목리스트 메일 " + DATES.length + "회분(" + DATES.map(md).join(", ") + "). 메일을 받은 날짜만 반영되며, 같은 약품명·제약사는 하루에 한 줄로 묶어 표시합니다. '연속'은 수신된 회차를 기준으로 셉니다.";
+renderTop();
+renderAll();
+</script>
+</body>
+</html>
