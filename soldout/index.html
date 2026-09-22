@@ -410,10 +410,16 @@ function renderFlow(){
 function updateSearchStatus(){
   const box = document.getElementById("searchStatus");
   if (!query) { box.textContent = ""; box.className = "searchStatus"; return; }
-  const todayHit = [...DAY[LATEST].values()].some(it => fuzzyMatch(query, it.name));
+  const marketHit = [...DAY[LATEST].values()].some(it => fuzzyMatch(query, it.name));
   const commonHit = COMMON.some(it => fuzzyMatch(query, it.name));
-  if (todayHit || commonHit) {
-    box.textContent = "⚠ 품절약입니다";
+  if (marketHit && commonHit) {
+    box.textContent = "⚠ 시장 품절약 + 3사 품절약입니다";
+    box.className = "searchStatus hit";
+  } else if (marketHit) {
+    box.textContent = "⚠ 시장 품절약입니다";
+    box.className = "searchStatus hit";
+  } else if (commonHit) {
+    box.textContent = "⚠ 3사 품절약입니다";
     box.className = "searchStatus hit";
   } else {
     box.textContent = "현재 품절 목록에 없습니다";
