@@ -62,6 +62,9 @@
   .searchRow input::placeholder{color:var(--faint);}
   .searchRow input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
   .searchHint{margin:6px 2px 0;font-size:11.5px;color:var(--faint);}
+  .searchStatus{margin:8px 2px 0;font-size:14px;font-weight:800;min-height:18px;}
+  .searchStatus.hit{color:var(--hot);}
+  .searchStatus.miss{color:var(--faint);font-weight:500;}
   .list li.empty,.top li.empty{display:block;padding:14px 2px;font-size:12.5px;color:var(--faint);border-top:none;}
 
   .dates{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;margin-bottom:8px;}
@@ -165,6 +168,7 @@
 
   <div class="searchRow">
     <input type="search" id="q" placeholder="제품명으로 검색 (예: 타이레놀 — 일부만 입력해도 찾아줍니다)" autocomplete="off">
+    <p class="searchStatus" id="searchStatus"></p>
   </div>
 
   <div class="dates" id="dates" role="group" aria-label="날짜 선택"></div>
@@ -403,13 +407,27 @@ function renderFlow(){
   document.getElementById("flowNote").textContent = (query ? "\"" + query + "\" 검색됨 · " : "") + (showAll ? "전체 " + total + "개 품목" : "2회 이상 등장한 " + rows.length + "개 품목 (전체 " + total + "개)");
 }
 
+function updateSearchStatus(){
+  const box = document.getElementById("searchStatus");
+  if (!query) { box.textContent = ""; box.className = "searchStatus"; return; }
+  const todayHit = [...DAY[LATEST].values()].some(it => fuzzyMatch(query, it.name));
+  const commonHit = COMMON.some(it => fuzzyMatch(query, it.name));
+  if (todayHit || commonHit) {
+    box.textContent = "⚠ 품절약입니다";
+    box.className = "searchStatus hit";
+  } else {
+    box.textContent = "현재 품절 목록에 없습니다";
+    box.className = "searchStatus miss";
+  }
+}
+
 function renderAll(){
   const idx = DATES.indexOf(selected);
   renderDates(); renderTiles(idx); renderList(idx); renderTop(); renderFlow(); renderCommon();
 }
 
 document.getElementById("toggleAll").onclick = () => { showAll = !showAll; renderFlow(); };
-document.getElementById("q").oninput = e => { query = e.target.value; renderList(DATES.indexOf(selected)); renderTop(); renderFlow(); renderCommon(); };
+document.getElementById("q").oninput = e => { query = e.target.value; renderList(DATES.indexOf(selected)); renderTop(); renderFlow(); renderCommon(); updateSearchStatus(); };
 document.getElementById("updated").replaceChildren(document.createTextNode("최근 수신 "), el("b", "", md(LATEST) + " (" + wd(LATEST) + ")"));
 document.getElementById("src").textContent = "출처: 대웅제약 의약품 품절품목리스트 메일 " + DATES.length + "회분(" + DATES.map(md).join(", ") + "). 메일을 받은 날짜만 반영되며, 같은 약품명·제약사는 하루에 한 줄로 묶어 표시합니다. '연속'은 수신된 회차를 기준으로 셉니다.";
 renderAll();
