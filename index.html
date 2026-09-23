@@ -368,7 +368,7 @@
     <div class="updated">
       <div class="raw-links" id="rawLinks"></div>
       <div class="raw-links" id="soldoutLink" style="display:none;"><a href="soldout/" target="_blank" rel="noopener">시장 품절약 현황 →</a></div>
-      데이터 기준 <b id="updatedAt">2026. 9. 22.</b><span class="who-badge"><span id="whoLabel"></span><button id="logoutBtn" type="button">로그아웃</button></span>
+      데이터 기준 <b id="updatedAt">2026. 9. 22.</b><span class="who-badge"><button id="hardRefreshBtn" type="button" title="캐시 무시하고 최신 데이터 불러오기">새로고침</button><span id="whoLabel"></span><button id="logoutBtn" type="button">로그아웃</button></span>
     </div>
   </div>
 
@@ -490,6 +490,9 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
   try{ sessionStorage.removeItem("vcUser"); }catch(e){}
   document.getElementById("loginForm").reset();
   showLogin();
+});
+document.getElementById("hardRefreshBtn").addEventListener("click", () => {
+  location.href = location.pathname + "?_r=" + Date.now();
 });
 
 // 재고금액(억) ÷ 일평균 VC 매출(8월 VC 도매매출 ÷ 영업일 20일)

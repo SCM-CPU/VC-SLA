@@ -54,8 +54,10 @@
   .bm-plus{font-size:12px;font-weight:700;color:#fff;background:var(--logo-blue);padding:3px 9px;border-radius:999px;}
   .titles h1{margin:0;font-size:22px;font-weight:900;letter-spacing:-.2px;text-wrap:balance;}
   .titles p{margin:2px 0 0;font-size:13px;color:var(--muted);}
-  .updated{font-size:12px;color:var(--faint);text-align:right;font-variant-numeric:tabular-nums;}
+  .updated{font-size:12px;color:var(--faint);text-align:right;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:10px;}
   .updated b{color:var(--muted);font-weight:700;}
+  #hardRefreshBtn{font-size:12px;font-family:inherit;font-weight:700;color:var(--accent-ink,var(--muted));background:none;border:1px solid var(--border);border-radius:999px;padding:3px 11px;cursor:pointer;}
+  #hardRefreshBtn:hover{background:var(--surface-alt);}
 
   .searchRow{margin-bottom:10px;}
   .searchRow input{width:100%;padding:11px 16px;font-size:14px;font-family:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);}
@@ -163,7 +165,7 @@
         <p>대웅제약 일일 품절 의약품 순위 · 날짜별 변화 · 협력도매 3사 공통 품절 리스트</p>
       </div>
     </div>
-    <div class="updated" id="updated"></div>
+    <div class="updated"><button id="hardRefreshBtn" type="button" title="캐시 무시하고 최신 데이터 불러오기">새로고침</button><span id="updated"></span></div>
   </div>
 
   <div class="searchRow">
@@ -432,6 +434,7 @@ function renderAll(){
   renderDates(); renderTiles(idx); renderList(idx); renderTop(); renderFlow(); renderCommon();
 }
 
+document.getElementById("hardRefreshBtn").onclick = () => { location.href = location.pathname + "?_r=" + Date.now(); };
 document.getElementById("toggleAll").onclick = () => { showAll = !showAll; renderFlow(); };
 document.getElementById("q").oninput = e => { query = e.target.value; renderList(DATES.indexOf(selected)); renderTop(); renderFlow(); renderCommon(); updateSearchStatus(); };
 document.getElementById("updated").replaceChildren(document.createTextNode("최근 수신 "), el("b", "", md(LATEST) + " (" + wd(LATEST) + ")"));
