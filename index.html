@@ -629,6 +629,7 @@ function fetchReturnLive(company){
         const idxNo = cols.indexOf("반품번호");
         const idxStatus = cols.indexOf("반품상태");
         const idxSchedule = cols.indexOf("수거예정일");
+        const idxThisMonth = cols.indexOf("당월 신청건 여부");
         // 시트의 "수거경과일" 컬럼은 처리 시점에 계산된 값이라 같은 수거예정일인데도
         // 서로 다른 값이 찍히는 경우가 있어(가공 배치 시점 차이로 보임), 신뢰하지 않고
         // 원본 "수거예정일"(YYYYMMDDHHMMSS)로 매번 직접 계산한다.
@@ -644,6 +645,10 @@ function fetchReturnLive(company){
           if(!c) continue;
           const status = c[idxStatus] ? c[idxStatus].v : "";
           if(status !== "반품대기") continue;
+          // 오래된 반품 중 일부가 정리되지 않고 "반품대기"로 계속 남아있는 사례가 있어
+          // (예: 복산 5월 신청건이 아직도 대기 상태), 당월 신청건만 집계한다 — Looker 리포트와 동일 기준.
+          const thisMonth = c[idxThisMonth] ? String(c[idxThisMonth].v || "").trim() : "";
+          if(!thisMonth) continue;
           const no = c[idxNo] ? c[idxNo].v : "";
           const days = c[idxSchedule] && c[idxSchedule].v != null ? daysSince(c[idxSchedule].v) : 0;
           if(!groups.has(no)) groups.set(no, { no, count: 0, days });
