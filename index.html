@@ -226,7 +226,7 @@
   .return-detail table{width:100%;border-collapse:collapse;font-size:12.5px;}
   .return-detail th, .return-detail td{text-align:left;padding:5px 10px;border-bottom:1px solid var(--border);}
   .return-detail th{color:var(--muted);font-weight:700;}
-  .return-detail td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .return-detail th.num, .return-detail td.num{text-align:center;font-variant-numeric:tabular-nums;}
 
   .m-head{display:flex;align-items:center;flex-wrap:nowrap;gap:6px 8px;}
   .m-goal{white-space:nowrap;}
@@ -628,7 +628,16 @@ function fetchReturnLive(company){
         const cols = json.table.cols.map(c => c.label);
         const idxNo = cols.indexOf("반품번호");
         const idxStatus = cols.indexOf("반품상태");
-        const idxDays = cols.indexOf("수거경과일");
+        const idxSchedule = cols.indexOf("수거예정일");
+        // 시트의 "수거경과일" 컬럼은 처리 시점에 계산된 값이라 같은 수거예정일인데도
+        // 서로 다른 값이 찍히는 경우가 있어(가공 배치 시점 차이로 보임), 신뢰하지 않고
+        // 원본 "수거예정일"(YYYYMMDDHHMMSS)로 매번 직접 계산한다.
+        const todayUTC = (() => { const d = new Date(); return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()); })();
+        function daysSince(scheduleRaw){
+          const s = String(scheduleRaw);
+          const y = +s.slice(0,4), mo = +s.slice(4,6) - 1, d = +s.slice(6,8);
+          return Math.round((todayUTC - Date.UTC(y, mo, d)) / 86400000);
+        }
         const groups = new Map();
         for(const row of json.table.rows){
           const c = row.c;
@@ -636,7 +645,7 @@ function fetchReturnLive(company){
           const status = c[idxStatus] ? c[idxStatus].v : "";
           if(status !== "반품대기") continue;
           const no = c[idxNo] ? c[idxNo].v : "";
-          const days = c[idxDays] ? Number(c[idxDays].v) || 0 : 0;
+          const days = c[idxSchedule] && c[idxSchedule].v != null ? daysSince(c[idxSchedule].v) : 0;
           if(!groups.has(no)) groups.set(no, { no, count: 0, days });
           const g = groups.get(no);
           g.count++;
@@ -678,7 +687,7 @@ function renderReturnDetailHTML(name){
     </div>
     ${overdueList.length ? `
       <table>
-        <thead><tr><th>반품번호</th><th>반품상품 수</th><th>수거경과일</th></tr></thead>
+        <thead><tr><th>반품번호</th><th class="num">반품상품 수</th><th class="num">수거경과일</th></tr></thead>
         <tbody>${overdueList.map(g => `<tr><td>${g.no}</td><td class="num">${g.count}</td><td class="num">${g.days}</td></tr>`).join("")}</tbody>
       </table>
     ` : `<div class="rd-loading">기한 초과 반품건 없음</div>`}
