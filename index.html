@@ -213,6 +213,20 @@
     border-right:1px solid var(--border);
   }
   .metric:last-child{border-right:none;}
+  .metric[data-metric="반품"]{cursor:pointer;border-radius:8px;transition:background .12s;}
+  .metric[data-metric="반품"]:hover{background:var(--surface-alt);}
+
+  .return-detail{display:none;margin-top:4px;padding-top:12px;border-top:1px solid var(--border);}
+  .return-detail.open{display:block;}
+  .return-detail .rd-loading, .return-detail .rd-error{font-size:12.5px;color:var(--muted);padding:4px 0;}
+  .return-detail .rd-summary{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:10px;font-size:12.5px;color:var(--muted);}
+  .return-detail .rd-summary b{color:var(--ink);font-size:14px;}
+  .return-detail .rd-bucket{display:inline-flex;align-items:center;gap:5px;background:var(--surface-alt);border-radius:999px;padding:3px 10px;}
+  .return-detail .rd-bucket.warn{color:var(--grade-d);}
+  .return-detail table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .return-detail th, .return-detail td{text-align:left;padding:5px 10px;border-bottom:1px solid var(--border);}
+  .return-detail th{color:var(--muted);font-weight:700;}
+  .return-detail td.num{text-align:right;font-variant-numeric:tabular-nums;}
 
   .m-head{display:flex;align-items:center;flex-wrap:nowrap;gap:6px 8px;}
   .m-goal{white-space:nowrap;}
@@ -392,6 +406,8 @@ const DATA = [
     name: "백제약품",
     vcMonthly: 14.19,
     sheetId: "1bUZVql4OCH4PW-9zPN3d3xyRwBP0-8dCn_uL3plCWdI",
+    slaRawSheetId: "1L1U8vR9bstyjTUXLelkwNO2oBIu9pTGDmVEWk8ap-as",
+    returnGid: "564251587",
     registered: 10860,
     metrics: [
       { key:"구색", label:"기준 구색 100% 달성", pct:88.0, grade:"b",
@@ -408,6 +424,8 @@ const DATA = [
     name: "복산나이스",
     vcMonthly: 7.64,
     sheetId: "1OMqiqYu0F_vvum1piV1WYOafo5e2G3KDVllU85f7jyA",
+    slaRawSheetId: "1ofhbXtSZFaB_yC4zr3yu5WPF0GyzHOQvkrbbJF0pp5w",
+    returnGid: "427245533",
     registered: 12674,
     metrics: [
       { key:"구색", label:"기준 구색 100% 달성", pct:79.9, grade:"c",
@@ -424,6 +442,8 @@ const DATA = [
     name: "인천약품",
     vcMonthly: 9.43,
     sheetId: "1z05vnwfAV5Wscc-SgtuZ3wwpuOP-5aZTAcc_SvO1dyY",
+    slaRawSheetId: "1u9fQBxwKKcyU9DJ5D1QlhraIXPwvewbOiqFuPlrRVh8",
+    returnGid: "1871133332",
     registered: 17233,
     metrics: [
       { key:"구색", label:"기준 구색 100% 달성", pct:87.1, grade:"b",
@@ -537,8 +557,13 @@ function render(){
           </div>
         `).join("")}
       </div>
+      <div class="return-detail" id="returnDetail-${p.name}"></div>
     </div>
   `).join("");
+  document.querySelectorAll('.metric[data-metric="반품"]').forEach(el => {
+    el.addEventListener("click", () => toggleReturnDetail(el.dataset.partner));
+  });
+  applyReturnDetailToDOM();
 }
 
 // 구색 항목(양사 합의된 필수 구색수 / 현재 보유 중인 필수 구색수 / 달성률)을
@@ -581,6 +606,119 @@ function fetchSheetLive(company){
     script.onerror = () => { cleanup(); reject(new Error("load error")); };
     document.body.appendChild(script);
   });
+}
+
+// 반품 항목 클릭 시 상세(대기 건수·수거경과일 버킷·기한초과 반품건 목록)를
+// 내부 SLA RAW 시트의 "반품(tobe_가공용)" 탭에서 실시간으로 읽어와 카드 아래에 펼쳐 보여준다.
+const returnCache = {};
+let openReturn = null;
+
+function fetchReturnLive(company){
+  return new Promise((resolve, reject) => {
+    const cbName = "gvizCb_" + (cbSeq++);
+    const timer = setTimeout(() => { cleanup(); reject(new Error("timeout")); }, 15000);
+    function cleanup(){
+      clearTimeout(timer);
+      delete window[cbName];
+      script.remove();
+    }
+    window[cbName] = (json) => {
+      cleanup();
+      try{
+        const cols = json.table.cols.map(c => c.label);
+        const idxNo = cols.indexOf("반품번호");
+        const idxStatus = cols.indexOf("반품상태");
+        const idxDays = cols.indexOf("수거경과일");
+        const groups = new Map();
+        for(const row of json.table.rows){
+          const c = row.c;
+          if(!c) continue;
+          const status = c[idxStatus] ? c[idxStatus].v : "";
+          if(status !== "반품대기") continue;
+          const no = c[idxNo] ? c[idxNo].v : "";
+          const days = c[idxDays] ? Number(c[idxDays].v) || 0 : 0;
+          if(!groups.has(no)) groups.set(no, { no, count: 0, days });
+          const g = groups.get(no);
+          g.count++;
+          g.days = Math.max(g.days, days);
+        }
+        const buckets = { normal: 0, dueToday: 0, overdue: 0 };
+        let pending = 0;
+        const overdueList = [];
+        groups.forEach(g => {
+          pending += g.count;
+          if(g.days >= 3){ buckets.overdue += g.count; overdueList.push(g); }
+          else if(g.days === 2) buckets.dueToday += g.count;
+          else buckets.normal += g.count;
+        });
+        overdueList.sort((a,b) => b.days - a.days);
+        resolve({ pending, buckets, overdueList });
+      }catch(e){ reject(e); }
+    };
+    const url = "https://docs.google.com/spreadsheets/d/" + company.slaRawSheetId +
+      "/gviz/tq?tqx=responseHandler:" + cbName + "&gid=" + company.returnGid;
+    const script = document.createElement("script");
+    script.src = url;
+    script.onerror = () => { cleanup(); reject(new Error("load error")); };
+    document.body.appendChild(script);
+  });
+}
+
+function renderReturnDetailHTML(name){
+  const c = returnCache[name];
+  if(!c || c.status === "loading") return `<div class="rd-loading">반품 상세 불러오는 중…</div>`;
+  if(c.status === "error") return `<div class="rd-error">불러오기 실패 — <a href="#" data-retry="${name}">다시 시도</a></div>`;
+  const { pending, buckets, overdueList } = c.data;
+  return `
+    <div class="rd-summary">
+      <span>반품대기 총 <b>${pending}건</b></span>
+      <span class="rd-bucket">정상(0~1일차) ${buckets.normal}건</span>
+      <span class="rd-bucket">오늘마감(2일차) ${buckets.dueToday}건</span>
+      <span class="rd-bucket warn">기한초과(3일차+) ${buckets.overdue}건</span>
+    </div>
+    ${overdueList.length ? `
+      <table>
+        <thead><tr><th>반품번호</th><th>반품상품 수</th><th>수거경과일</th></tr></thead>
+        <tbody>${overdueList.map(g => `<tr><td>${g.no}</td><td class="num">${g.count}</td><td class="num">${g.days}</td></tr>`).join("")}</tbody>
+      </table>
+    ` : `<div class="rd-loading">기한 초과 반품건 없음</div>`}
+  `;
+}
+
+function applyReturnDetailToDOM(){
+  DATA.forEach(p => {
+    const el = document.getElementById("returnDetail-" + p.name);
+    if(!el) return;
+    if(p.name === openReturn){
+      el.classList.add("open");
+      el.innerHTML = renderReturnDetailHTML(p.name);
+      el.querySelectorAll("[data-retry]").forEach(a => {
+        a.addEventListener("click", (e) => { e.preventDefault(); loadReturnDetail(a.dataset.retry); });
+      });
+    } else {
+      el.classList.remove("open");
+      el.innerHTML = "";
+    }
+  });
+}
+
+async function loadReturnDetail(name){
+  returnCache[name] = { status: "loading" };
+  applyReturnDetailToDOM();
+  const p = DATA.find(x => x.name === name);
+  try{
+    const data = await fetchReturnLive(p);
+    returnCache[name] = { status: "ok", data };
+  }catch(e){
+    returnCache[name] = { status: "error" };
+  }
+  applyReturnDetailToDOM();
+}
+
+function toggleReturnDetail(name){
+  openReturn = (openReturn === name) ? null : name;
+  applyReturnDetailToDOM();
+  if(openReturn && !returnCache[openReturn]) loadReturnDetail(openReturn);
 }
 
 async function syncLive(){
