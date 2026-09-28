@@ -153,6 +153,74 @@
     .list li .badges{grid-column:2;justify-content:flex-start;}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+
+:root{
+  --green:#1F9254; --green-bg:#E3F5EA;
+  --vc1:#2F6FED; --vc1-bg:#E5EEFE;
+  --vc2:#8B5CF6; --vc2-bg:#EFE9FE;
+  --vc3:#0D9488; --vc3-bg:#DAF5F1;
+  --vc4:#DB2777; --vc4-bg:#FCE4F0;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --green:#5FD196; --green-bg:#173829;
+    --vc1-bg:#1E2C4E; --vc2-bg:#2C2350; --vc3-bg:#0F332F; --vc4-bg:#3A1830;
+  }
+}
+:root[data-theme="dark"]{
+  --green:#5FD196; --green-bg:#173829;
+  --vc1-bg:#1E2C4E; --vc2-bg:#2C2350; --vc3-bg:#0F332F; --vc4-bg:#3A1830;
+}
+.req-title{font-size:18px;font-weight:900;margin:0 0 2px;}
+.req-sub{color:var(--muted);font-size:13px;margin:0 0 16px;}
+.req-tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px;}
+.req-tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;}
+.req-tile .n{font-size:24px;font-weight:900;letter-spacing:-.3px;}
+.req-tile .l{font-size:12px;color:var(--muted);margin-top:2px;}
+.req-tile.green .n{color:var(--green);} .req-tile.amber .n{color:var(--warn);} .req-tile.red .n{color:var(--hot);}
+.req-teams{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.req-team{background:var(--surface);border:1px solid var(--border);border-left:5px solid var(--tc);border-radius:14px;padding:12px 16px;}
+.req-team .name{font-size:13px;font-weight:800;color:var(--tc);margin-bottom:6px;}
+.req-team .stats{display:flex;align-items:baseline;gap:14px;}
+.req-team .n{font-size:20px;font-weight:900;}
+.req-team .n small{font-size:11px;font-weight:700;color:var(--muted);margin-left:2px;}
+.req-controls{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.req-controls select, .req-controls input{font-family:inherit;font-size:13px;padding:7px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--ink);}
+.req-controls input{flex:1;min-width:180px;}
+.req-table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;font-size:13px;text-align:center;}
+.req-table thead th{text-align:center;background:var(--surface-alt);color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.req-table tbody td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:center;}
+.req-table tbody tr:last-child td{border-bottom:none;}
+.req-table tbody tr:hover{background:var(--surface-alt);}
+.req-date{color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.req-office-badge{display:inline-block;font-size:12px;font-weight:800;padding:4px 12px;border-radius:999px;background:var(--tc-bg);color:var(--tc);}
+.req-pharmacy{font-weight:600;}
+.req-code{color:var(--faint);font-size:11.5px;}
+.req-qty{color:var(--muted);white-space:nowrap;}
+.req-result{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;}
+.req-result.green{background:var(--green-bg);color:var(--green);}
+.req-result.amber{background:var(--warn-bg);color:var(--warn);}
+.req-result.red{background:var(--hot-bg);color:var(--hot);}
+.req-detail{color:var(--muted);font-size:12.5px;max-width:220px;}
+tr.req-hide{display:none;}
+.req-foot{margin-top:14px;font-size:11.5px;color:var(--faint);}
+.tabbar{display:flex;gap:8px;margin:14px 0 18px;}
+.tabbtn{font-family:inherit;font-size:13.5px;font-weight:800;padding:9px 18px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;}
+.tabbtn.active{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent);}
+.tabpanel.hide{display:none;}
+.req-table-wrap{overflow-x:auto;border-radius:14px;}
+.req-table-wrap .req-table{min-width:760px;}
+@media (max-width:980px){
+  .req-tiles{grid-template-columns:repeat(2,1fr);}
+  .req-teams{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:480px){
+  .tabbar{gap:6px;}
+  .tabbtn{flex:1;padding:9px 8px;font-size:12.5px;text-align:center;}
+  .req-title{font-size:16px;}
+  .req-controls select, .req-controls input{font-size:12.5px;padding:7px 10px;}
+  .req-controls input{min-width:120px;}
+}
 </style>
 </head>
 <body>
@@ -168,6 +236,12 @@
     <div class="updated"><button id="hardRefreshBtn" type="button" title="캐시 무시하고 최신 데이터 불러오기">새로고침</button><span id="updated"></span></div>
   </div>
 
+  <div class="tabbar">
+    <button class="tabbtn active" id="tabBtnSoldout" type="button">품절 현황</button>
+    <button class="tabbtn" id="tabBtnRequest" type="button">VC 요청 현황</button>
+  </div>
+
+  <div id="tabSoldout" class="tabpanel">
   <div class="searchRow">
     <input type="search" id="q" placeholder="제품명으로 검색 (예: 타이레놀 — 일부만 입력해도 찾아줍니다)" autocomplete="off">
     <p class="searchStatus" id="searchStatus"></p>
@@ -210,6 +284,175 @@
     </ul>
   </div>
   <div class="src" id="src"></div>
+  </div>
+
+  <div id="tabRequest" class="tabpanel hide">
+
+  <div id="reqLock">
+    <p class="req-sub">내부 직원 전용 화면입니다. 비밀번호를 입력하세요.</p>
+    <div class="req-controls">
+      <input type="password" id="reqPw" placeholder="비밀번호" style="max-width:160px;">
+      <button class="tabbtn" id="reqUnlockBtn" type="button">확인</button>
+    </div>
+    <p class="req-foot" id="reqPwErr" style="display:none;color:var(--hot);">비밀번호가 올바르지 않습니다.</p>
+  </div>
+  <div id="reqContent" style="display:none;">
+  <h2 class="req-title">VC 품절약 요청 현황</h2>
+  <p class="req-sub">CH사업부 요청 → VC팀 → 협력도매 3사 피드백 결과 (2026-09-21 ~ 09-28, 총 25건)</p>
+
+  <div class="req-tiles">
+    <div class="req-tile"><div class="n">25</div><div class="l">총 요청 건수</div></div>
+    <div class="req-tile green"><div class="n">7</div><div class="l">즉시가능·입고완료</div></div>
+    <div class="req-tile amber"><div class="n">9</div><div class="l">입고 예정</div></div>
+    <div class="req-tile red"><div class="n">9</div><div class="l">품절 안내(시장 품절)</div></div>
+    <div class="req-tile"><div class="n">25/25</div><div class="l">도매 회신 완료</div></div>
+  </div>
+
+  <div class="req-teams" id="reqTeams"></div>
+
+  <div class="req-controls">
+    <input type="search" id="reqQ" placeholder="약국명·품목명·담당자로 검색">
+    <select id="reqFTeam"><option value="">전체 팀</option></select>
+    <select id="reqFWholesale"><option value="">전체 도매</option></select>
+    <select id="reqFResult">
+      <option value="">전체 결과</option>
+      <option value="green">즉시가능·입고완료</option>
+      <option value="amber">입고 예정</option>
+      <option value="red">품절 안내</option>
+    </select>
+  </div>
+
+  <div class="req-table-wrap">
+  <table class="req-table">
+    <thead>
+      <tr>
+        <th>요청일</th><th>사무소</th><th>담당자</th><th>약국명</th><th>VC도매</th><th>품절 품목</th><th>수량</th><th>결과</th><th>입고 시점</th>
+      </tr>
+    </thead>
+    <tbody id="reqRows"></tbody>
+  </table>
+  </div>
+  <p class="req-foot">결과 배지는 "입고 시점" 원문을 즉시가능·입고완료(초록) / 입고예정(주황) / 품절안내(빨강) 3가지로 분류한 것이고, 원문 전체는 맨 오른쪽 열에 그대로 표시됩니다.</p>
+  </div>
+
+<script>
+(function(){
+  const REQ_PW = "1234";
+  function reqUnlock(){
+    document.getElementById("reqLock").style.display = "none";
+    document.getElementById("reqContent").style.display = "";
+  }
+  try{ if(sessionStorage.getItem("reqUnlocked") === "1") reqUnlock(); }catch(e){}
+  document.getElementById("reqUnlockBtn").addEventListener("click", () => {
+    const v = document.getElementById("reqPw").value;
+    if(v === REQ_PW){
+      try{ sessionStorage.setItem("reqUnlocked", "1"); }catch(e){}
+      document.getElementById("reqPwErr").style.display = "none";
+      reqUnlock();
+    } else {
+      document.getElementById("reqPwErr").style.display = "";
+    }
+  });
+  document.getElementById("reqPw").addEventListener("keydown", (e) => {
+    if(e.key === "Enter") document.getElementById("reqUnlockBtn").click();
+  });
+})();
+</script>
+
+<script>
+const REQ_TEAM_OF = {
+  "송하나":"VC1","김아린":"VC1","김영보":"VC1","김영환":"VC1","신유림":"VC1","황교휘":"VC1",
+  "최재건":"VC2","강민지":"VC2","김민규(B)":"VC2","김재영":"VC2","이송효":"VC2","이효섭":"VC2","장현우":"VC2","최원호":"VC2",
+  "김진홍":"VC3","김환":"VC3","노종찬":"VC3","박영훈":"VC3","양창주":"VC3","오규하":"VC3","윤효원":"VC3","이재일":"VC3","이종민":"VC3","전석진":"VC3","황태근":"VC3",
+  "김태환(A)":"VC4","고진규":"VC4","권삼국":"VC4","김혁(A)":"VC4","이권욱":"VC4",
+};
+const REQ_TEAM_HEADCOUNT = { VC1:6, VC2:8, VC3:11, VC4:5 };
+const REQ_TEAM_COLOR = {
+  VC1: ["var(--vc1)","var(--vc1-bg)"], VC2: ["var(--vc2)","var(--vc2-bg)"],
+  VC3: ["var(--vc3)","var(--vc3-bg)"], VC4: ["var(--vc4)","var(--vc4-bg)"],
+};
+function reqOfficeBadge(team){
+  const [tc, tcBg] = REQ_TEAM_COLOR[team];
+  return `<span class="req-office-badge" style="--tc:${tc};--tc-bg:${tcBg}">${team}</span>`;
+}
+const REQ_DATA = [
+  ["2026-09-21 16:29","이권욱","새봄이온누리약국","백제","비스칸비캡슐","미기재","green","D+2 입고완료(김포)"],
+  ["2026-09-21 16:39","이송효","우리참사랑약국","인천","아젤리아크림 30g 1크림(튜브)","미기재","amber","300C 수요일 / 30C 9월 말 입고"],
+  ["2026-09-22 10:17","이재일","대학온누리약국","복산","레가론캡슐140 (부광약품)","미기재","amber","다음주 입고 예정"],
+  ["2026-09-22 10:18","이재일","양지온누리약국","복산","레가론캡슐140(부광약품)","미기재","amber","다음주 입고 예정"],
+  ["2026-09-22 10:18","이재일","양지온누리약국","복산","조인스에프정300(에스케이)","미기재","red","품절 안내"],
+  ["2026-09-22 10:18","이재일","양지온누리약국","복산","나조넥스나잘스프레이(오가논)","미기재","green","D+1 입고완료"],
+  ["2026-09-22 10:19","이재일","진영약국","복산","아젤리아 10개","10개","green","재고 확보, 주문가능"],
+  ["2026-09-22 10:19","장현우","서울시니어스약국","인천","라벤다크림","미기재","red","품절 안내"],
+  ["2026-09-22 10:19","장현우","서울시니어스약국","인천","마그밀정 500mg","미기재","red","품절 안내"],
+  ["2026-09-22 10:19","장현우","서울시니어스약국","인천","레가론캅셀140 339.4mg(30캡슐)","미기재","amber","9월 입고 예정"],
+  ["2026-09-22 10:19","장현우","서울시니어스약국","인천","레가론캅셀140 339.4mg(100캡슐)","미기재","amber","9월 입고 예정"],
+  ["2026-09-22 11:07","황교휘","사랑플러스약국","백제","알파간피 점안액0.15%","미기재","amber","10월 초 입고 예정"],
+  ["2026-09-22 11:19","노종찬","수온누리약국","복산","자누메트엑스알 서방정","미기재","green","재고 확보, 주문가능"],
+  ["2026-09-22 12:29","이효섭","샘물약국","복산","유리토스 0.1mg 60t","미기재","green","재고 확보, 주문가능"],
+  ["2026-09-22 12:29","이효섭","샘물약국","복산","레가론140 30t","미기재","amber","9월 입고 예정"],
+  ["2026-09-22 14:25","이재일","여명약국","복산","듀락칸이지시럽","미기재","red","품절안내"],
+  ["2026-09-22 14:25","이재일","여명약국","복산","라포직겔","미기재","red","품절안내"],
+  ["2026-09-22 14:25","이재일","여명약국","복산","듀라티얼즈안연고","미기재","green","재고 확보, 주문가능"],
+  ["2026-09-22 15:20","이송효","미진약국","복산","리포직점안겔 10g(튜브)","미기재","red","품절안내"],
+  ["2026-09-22 15:20","이송효","미진약국","복산","듀라티얼즈안연고 3.5g(튜브)","미기재","red","품절안내"],
+  ["2026-09-22 15:20","이송효","미진약국","복산","미노씬캡슐50mg 30캡(병)","미기재","green","재고 확보, 주문가능"],
+  ["2026-09-22 15:20","이송효","미진약국","복산","보령아스트릭스100mg 30캡슐(병)","미기재","amber","다음주 초 주문가능"],
+  ["2026-09-22 17:44","이권욱","정약국","백제","제뉴원칸데사르탄정16mg 30정(병)","미기재","red","품절안내"],
+  ["2026-09-23 10:28","황교휘","웃음짓는약국","백제","에르덱스(안국약품)","미기재","red","품절안내"],
+  ["2026-09-28 09:09","이권욱","고촌메디컬센타약국","백제","오엔지 질연질캡슐","1통","amber","10월 2일 안에 입고처리"],
+];
+const REQ_RESULT_LABEL = { green:"즉시가능·입고완료", amber:"입고 예정", red:"품절 안내" };
+function reqTeamCounts(){
+  const c = {VC1:0,VC2:0,VC3:0,VC4:0};
+  REQ_DATA.forEach(r => c[REQ_TEAM_OF[r[1]]]++);
+  return c;
+}
+document.getElementById("reqTeams").innerHTML = Object.entries(reqTeamCounts()).map(([t,n]) =>
+  `<div class="req-team" style="--tc:${REQ_TEAM_COLOR[t][0]}">
+     <div class="name">약국${t}팀</div>
+     <div class="stats">
+       <span class="n">${REQ_TEAM_HEADCOUNT[t]}<small>명</small></span>
+       <span class="n">${n}<small>건</small></span>
+     </div>
+   </div>`).join("");
+const reqWholesales = [...new Set(REQ_DATA.map(r => r[4]))];
+document.getElementById("reqFWholesale").innerHTML += reqWholesales.map(w => `<option value="${w}">${w}</option>`).join("");
+document.getElementById("reqFTeam").innerHTML += ["VC1","VC2","VC3","VC4"].map(t => `<option value="${t}">약국${t}팀</option>`).join("");
+function reqRender(){
+  const q = document.getElementById("reqQ").value.trim().toLowerCase();
+  const fTeam = document.getElementById("reqFTeam").value;
+  const fW = document.getElementById("reqFWholesale").value;
+  const fR = document.getElementById("reqFResult").value;
+  document.getElementById("reqRows").innerHTML = REQ_DATA.map(r => {
+    const [date, person, pharmacy, wholesale, item, qty, badge, detail] = r;
+    const team = REQ_TEAM_OF[person];
+    const hay = (person+pharmacy+item).toLowerCase();
+    let show = true;
+    if(q && !hay.includes(q)) show = false;
+    if(fTeam && team !== fTeam) show = false;
+    if(fW && wholesale !== fW) show = false;
+    if(fR && badge !== fR) show = false;
+    return `<tr class="${show?"":"req-hide"}">
+      <td class="req-date">${date.slice(5,10)}</td>
+      <td>${reqOfficeBadge(team)}</td>
+      <td>${person}</td>
+      <td><div class="req-pharmacy">${pharmacy}</div></td>
+      <td>${wholesale}</td>
+      <td>${item}</td>
+      <td class="req-qty">${qty}</td>
+      <td><span class="req-result ${badge}">${REQ_RESULT_LABEL[badge]}</span></td>
+      <td class="req-detail">${detail}</td>
+    </tr>`;
+  }).join("");
+}
+["reqQ","reqFTeam","reqFWholesale","reqFResult"].forEach(id => {
+  document.getElementById(id).addEventListener("input", reqRender);
+});
+reqRender();
+</script>
+
+  </div>
 </div>
 
 <script>
@@ -440,6 +683,17 @@ document.getElementById("q").oninput = e => { query = e.target.value; renderList
 document.getElementById("updated").replaceChildren(document.createTextNode("최근 수신 "), el("b", "", md(LATEST) + " (" + wd(LATEST) + ")"));
 document.getElementById("src").textContent = "출처: 대웅제약 의약품 품절품목리스트 메일 " + DATES.length + "회분(" + DATES.map(md).join(", ") + "). 메일을 받은 날짜만 반영되며, 같은 약품명·제약사는 하루에 한 줄로 묶어 표시합니다. '연속'은 수신된 회차를 기준으로 셉니다.";
 renderAll();
+</script>
+
+<script>
+function reqShowTab(name){
+  document.getElementById("tabSoldout").classList.toggle("hide", name !== "soldout");
+  document.getElementById("tabRequest").classList.toggle("hide", name !== "request");
+  document.getElementById("tabBtnSoldout").classList.toggle("active", name === "soldout");
+  document.getElementById("tabBtnRequest").classList.toggle("active", name === "request");
+}
+document.getElementById("tabBtnSoldout").addEventListener("click", () => reqShowTab("soldout"));
+document.getElementById("tabBtnRequest").addEventListener("click", () => reqShowTab("request"));
 </script>
 </body>
 </html>
