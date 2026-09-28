@@ -298,14 +298,10 @@ tr.req-hide{display:none;}
   </div>
   <div id="reqContent" style="display:none;">
   <h2 class="req-title">VC 품절약 요청 현황</h2>
-  <p class="req-sub">CH사업부 요청 → VC팀 → 협력도매 3사 피드백 결과 (2026-09-21 ~ 09-28, 총 25건)</p>
+  <p class="req-sub">CH사업부 요청 → VC팀 → 협력도매 3사 피드백 결과 · <span id="reqAsOf">불러오는 중…</span></p>
 
-  <div class="req-tiles">
-    <div class="req-tile"><div class="n">25</div><div class="l">총 요청 건수</div></div>
-    <div class="req-tile green"><div class="n">7</div><div class="l">즉시가능·입고완료</div></div>
-    <div class="req-tile amber"><div class="n">9</div><div class="l">입고 예정</div></div>
-    <div class="req-tile red"><div class="n">9</div><div class="l">품절 안내(시장 품절)</div></div>
-    <div class="req-tile"><div class="n">25/25</div><div class="l">도매 회신 완료</div></div>
+  <div class="req-tiles" id="reqTiles">
+    <div class="req-tile"><div class="n">…</div><div class="l">불러오는 중</div></div>
   </div>
 
   <div class="req-teams" id="reqTeams"></div>
@@ -341,6 +337,7 @@ tr.req-hide{display:none;}
   function reqUnlock(){
     document.getElementById("reqLock").style.display = "none";
     document.getElementById("reqContent").style.display = "";
+    if(window.reqLoadData) window.reqLoadData();
   }
   try{ if(sessionStorage.getItem("reqUnlocked") === "1") reqUnlock(); }catch(e){}
   document.getElementById("reqUnlockBtn").addEventListener("click", () => {
@@ -372,53 +369,106 @@ const REQ_TEAM_COLOR = {
   VC3: ["var(--vc3)","var(--vc3-bg)"], VC4: ["var(--vc4)","var(--vc4-bg)"],
 };
 function reqOfficeBadge(team){
-  const [tc, tcBg] = REQ_TEAM_COLOR[team];
-  return `<span class="req-office-badge" style="--tc:${tc};--tc-bg:${tcBg}">${team}</span>`;
+  const [tc, tcBg] = REQ_TEAM_COLOR[team] || ["var(--muted)","var(--surface-alt)"];
+  return `<span class="req-office-badge" style="--tc:${tc};--tc-bg:${tcBg}">${team || "-"}</span>`;
 }
-const REQ_DATA = [
-  ["2026-09-21 16:29","이권욱","새봄이온누리약국","백제","비스칸비캡슐","미기재","green","D+2 입고완료(김포)"],
-  ["2026-09-21 16:39","이송효","우리참사랑약국","인천","아젤리아크림 30g 1크림(튜브)","미기재","amber","300C 수요일 / 30C 9월 말 입고"],
-  ["2026-09-22 10:17","이재일","대학온누리약국","복산","레가론캡슐140 (부광약품)","미기재","amber","다음주 입고 예정"],
-  ["2026-09-22 10:18","이재일","양지온누리약국","복산","레가론캡슐140(부광약품)","미기재","amber","다음주 입고 예정"],
-  ["2026-09-22 10:18","이재일","양지온누리약국","복산","조인스에프정300(에스케이)","미기재","red","품절 안내"],
-  ["2026-09-22 10:18","이재일","양지온누리약국","복산","나조넥스나잘스프레이(오가논)","미기재","green","D+1 입고완료"],
-  ["2026-09-22 10:19","이재일","진영약국","복산","아젤리아 10개","10개","green","재고 확보, 주문가능"],
-  ["2026-09-22 10:19","장현우","서울시니어스약국","인천","라벤다크림","미기재","red","품절 안내"],
-  ["2026-09-22 10:19","장현우","서울시니어스약국","인천","마그밀정 500mg","미기재","red","품절 안내"],
-  ["2026-09-22 10:19","장현우","서울시니어스약국","인천","레가론캅셀140 339.4mg(30캡슐)","미기재","amber","9월 입고 예정"],
-  ["2026-09-22 10:19","장현우","서울시니어스약국","인천","레가론캅셀140 339.4mg(100캡슐)","미기재","amber","9월 입고 예정"],
-  ["2026-09-22 11:07","황교휘","사랑플러스약국","백제","알파간피 점안액0.15%","미기재","amber","10월 초 입고 예정"],
-  ["2026-09-22 11:19","노종찬","수온누리약국","복산","자누메트엑스알 서방정","미기재","green","재고 확보, 주문가능"],
-  ["2026-09-22 12:29","이효섭","샘물약국","복산","유리토스 0.1mg 60t","미기재","green","재고 확보, 주문가능"],
-  ["2026-09-22 12:29","이효섭","샘물약국","복산","레가론140 30t","미기재","amber","9월 입고 예정"],
-  ["2026-09-22 14:25","이재일","여명약국","복산","듀락칸이지시럽","미기재","red","품절안내"],
-  ["2026-09-22 14:25","이재일","여명약국","복산","라포직겔","미기재","red","품절안내"],
-  ["2026-09-22 14:25","이재일","여명약국","복산","듀라티얼즈안연고","미기재","green","재고 확보, 주문가능"],
-  ["2026-09-22 15:20","이송효","미진약국","복산","리포직점안겔 10g(튜브)","미기재","red","품절안내"],
-  ["2026-09-22 15:20","이송효","미진약국","복산","듀라티얼즈안연고 3.5g(튜브)","미기재","red","품절안내"],
-  ["2026-09-22 15:20","이송효","미진약국","복산","미노씬캡슐50mg 30캡(병)","미기재","green","재고 확보, 주문가능"],
-  ["2026-09-22 15:20","이송효","미진약국","복산","보령아스트릭스100mg 30캡슐(병)","미기재","amber","다음주 초 주문가능"],
-  ["2026-09-22 17:44","이권욱","정약국","백제","제뉴원칸데사르탄정16mg 30정(병)","미기재","red","품절안내"],
-  ["2026-09-23 10:28","황교휘","웃음짓는약국","백제","에르덱스(안국약품)","미기재","red","품절안내"],
-  ["2026-09-28 09:09","이권욱","고촌메디컬센타약국","백제","오엔지 질연질캡슐","1통","amber","10월 2일 안에 입고처리"],
-];
+let REQ_DATA = [];
+const REQ_SHEET_ID = "1-SwisSQDmRIPs1jOyciS4YEXkKN8uh6aONWyasLjNJ8";
+const REQ_SHEET_GID = "366627305";
 const REQ_RESULT_LABEL = { green:"즉시가능·입고완료", amber:"입고 예정", red:"품절 안내" };
+
+function reqClassify(detail){
+  if(detail.includes("품절")) return "red";
+  if(detail.includes("완료") || (detail.includes("확보") && detail.includes("가능"))) return "green";
+  return "amber";
+}
+
+let reqCbSeq = 0;
+function fetchRequestLive(){
+  return new Promise((resolve, reject) => {
+    const cbName = "reqGvizCb_" + (reqCbSeq++);
+    const timer = setTimeout(() => { cleanup(); reject(new Error("timeout")); }, 15000);
+    function cleanup(){ clearTimeout(timer); delete window[cbName]; script.remove(); }
+    window[cbName] = (json) => {
+      cleanup();
+      try{
+        const cols = json.table.cols.map(c => c.label);
+        const idx = name => cols.indexOf(name);
+        const i = {
+          date: idx("요청일시"), person: idx("요청 담당자"), pharmacy: idx("약국명"),
+          wholesale: idx("VC도매"), item: idx("품절 품목"), qty: idx("요청 수량"), detail: idx("입고 시점"),
+        };
+        const get = (c, k) => (c[i[k]] && c[i[k]].v != null) ? String(c[i[k]].v).trim() : "";
+        const rows = json.table.rows.map(row => {
+          const c = row.c;
+          if(!c) return null;
+          const date = get(c, "date");
+          if(!date) return null;
+          const detail = get(c, "detail") || "-";
+          return [date, get(c,"person"), get(c,"pharmacy"), get(c,"wholesale"), get(c,"item"), get(c,"qty") || "미기재", reqClassify(detail), detail];
+        }).filter(Boolean);
+        resolve(rows);
+      }catch(e){ reject(e); }
+    };
+    const url = "https://docs.google.com/spreadsheets/d/" + REQ_SHEET_ID +
+      "/gviz/tq?tqx=responseHandler:" + cbName + "&gid=" + REQ_SHEET_GID;
+    const script = document.createElement("script");
+    script.src = url;
+    script.onerror = () => { cleanup(); reject(new Error("load error")); };
+    document.body.appendChild(script);
+  });
+}
+
+function renderReqTiles(){
+  const total = REQ_DATA.length;
+  const counts = { green:0, amber:0, red:0 };
+  let answered = 0;
+  REQ_DATA.forEach(r => { counts[r[6]]++; if(r[7] && r[7] !== "-") answered++; });
+  document.getElementById("reqTiles").innerHTML = `
+    <div class="req-tile"><div class="n">${total}</div><div class="l">총 요청 건수</div></div>
+    <div class="req-tile green"><div class="n">${counts.green}</div><div class="l">즉시가능·입고완료</div></div>
+    <div class="req-tile amber"><div class="n">${counts.amber}</div><div class="l">입고 예정</div></div>
+    <div class="req-tile red"><div class="n">${counts.red}</div><div class="l">품절 안내(시장 품절)</div></div>
+    <div class="req-tile"><div class="n">${answered}/${total}</div><div class="l">도매 회신 완료</div></div>
+  `;
+}
+
 function reqTeamCounts(){
   const c = {VC1:0,VC2:0,VC3:0,VC4:0};
-  REQ_DATA.forEach(r => c[REQ_TEAM_OF[r[1]]]++);
+  REQ_DATA.forEach(r => { const t = REQ_TEAM_OF[r[1]]; if(c[t] != null) c[t]++; });
   return c;
 }
-document.getElementById("reqTeams").innerHTML = Object.entries(reqTeamCounts()).map(([t,n]) =>
-  `<div class="req-team" style="--tc:${REQ_TEAM_COLOR[t][0]}">
-     <div class="name">약국${t}팀</div>
-     <div class="stats">
-       <span class="n">${REQ_TEAM_HEADCOUNT[t]}<small>명</small></span>
-       <span class="n">${n}<small>건</small></span>
-     </div>
-   </div>`).join("");
-const reqWholesales = [...new Set(REQ_DATA.map(r => r[4]))];
-document.getElementById("reqFWholesale").innerHTML += reqWholesales.map(w => `<option value="${w}">${w}</option>`).join("");
-document.getElementById("reqFTeam").innerHTML += ["VC1","VC2","VC3","VC4"].map(t => `<option value="${t}">약국${t}팀</option>`).join("");
+function renderReqTeams(){
+  document.getElementById("reqTeams").innerHTML = Object.entries(reqTeamCounts()).map(([t,n]) =>
+    `<div class="req-team" style="--tc:${REQ_TEAM_COLOR[t][0]}">
+       <div class="name">약국${t}팀</div>
+       <div class="stats">
+         <span class="n">${REQ_TEAM_HEADCOUNT[t]}<small>명</small></span>
+         <span class="n">${n}<small>건</small></span>
+       </div>
+     </div>`).join("");
+}
+function renderReqFilters(){
+  const reqWholesales = [...new Set(REQ_DATA.map(r => r[3]))];
+  document.getElementById("reqFWholesale").innerHTML = '<option value="">전체 도매</option>' +
+    reqWholesales.map(w => `<option value="${w}">${w}</option>`).join("");
+  document.getElementById("reqFTeam").innerHTML = '<option value="">전체 팀</option>' +
+    ["VC1","VC2","VC3","VC4"].map(t => `<option value="${t}">약국${t}팀</option>`).join("");
+}
+window.reqLoadData = function(){
+  document.getElementById("reqAsOf").textContent = "불러오는 중…";
+  fetchRequestLive().then(rows => {
+    REQ_DATA = rows;
+    document.getElementById("reqAsOf").textContent = "실시간 연동 · 총 " + rows.length + "건";
+    renderReqTiles();
+    renderReqTeams();
+    renderReqFilters();
+    reqRender();
+  }).catch(() => {
+    document.getElementById("reqAsOf").textContent = "실시간 데이터를 불러오지 못했습니다 — 새로고침 버튼으로 다시 시도해주세요.";
+  });
+};
+
 function reqRender(){
   const q = document.getElementById("reqQ").value.trim().toLowerCase();
   const fTeam = document.getElementById("reqFTeam").value;
@@ -449,7 +499,6 @@ function reqRender(){
 ["reqQ","reqFTeam","reqFWholesale","reqFResult"].forEach(id => {
   document.getElementById(id).addEventListener("input", reqRender);
 });
-reqRender();
 </script>
 
   </div>
