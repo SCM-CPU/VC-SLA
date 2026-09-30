@@ -339,7 +339,7 @@ tr.req-hide{display:none;}
     document.getElementById("reqContent").style.display = "";
     if(window.reqLoadData) window.reqLoadData();
   }
-  try{ if(sessionStorage.getItem("reqUnlocked") === "1") reqUnlock(); }catch(e){}
+  window.reqUnlock = reqUnlock;
   document.getElementById("reqUnlockBtn").addEventListener("click", () => {
     const v = document.getElementById("reqPw").value;
     if(v === REQ_PW){
@@ -500,6 +500,7 @@ function reqRender(){
 ["reqQ","reqFTeam","reqFWholesale","reqFResult"].forEach(id => {
   document.getElementById(id).addEventListener("input", reqRender);
 });
+try{ if(sessionStorage.getItem("reqUnlocked") === "1") window.reqUnlock(); }catch(e){}
 </script>
 
   </div>
