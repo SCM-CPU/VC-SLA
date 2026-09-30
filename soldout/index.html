@@ -378,8 +378,8 @@ const REQ_SHEET_GID = "366627305";
 const REQ_RESULT_LABEL = { green:"즉시가능·입고완료", amber:"입고 예정", red:"품절 안내" };
 
 function reqClassify(detail){
-  if(detail.includes("품절")) return "red";
-  if(detail.includes("완료") || (detail.includes("확보") && detail.includes("가능"))) return "green";
+  if(["품절","거래 중단","거래중단","단종","공급중단"].some(k => detail.includes(k))) return "red";
+  if(["완료","확보","확인"].some(k => detail.includes(k))) return "green";
   return "amber";
 }
 
