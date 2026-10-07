@@ -398,6 +398,7 @@ function fetchRequestLive(){
           date: idx("요청일시"), person: idx("요청 담당자"), pharmacy: idx("약국명"),
           wholesale: idx("VC도매"), item: idx("품절 품목"), qty: idx("요청 수량"), detail: idx("입고 시점"),
         };
+        if(Object.values(i).some(v => v < 0)) throw new Error("column mismatch");
         const get = (c, k) => (c[i[k]] && c[i[k]].v != null) ? String(c[i[k]].v).trim() : "";
         const rows = json.table.rows.map(row => {
           const c = row.c;
@@ -412,7 +413,7 @@ function fetchRequestLive(){
       }catch(e){ reject(e); }
     };
     const url = "https://docs.google.com/spreadsheets/d/" + REQ_SHEET_ID +
-      "/gviz/tq?tqx=responseHandler:" + cbName + "&gid=" + REQ_SHEET_GID;
+      "/gviz/tq?tqx=responseHandler:" + cbName + "&gid=" + REQ_SHEET_GID + "&headers=1";
     const script = document.createElement("script");
     script.src = url;
     script.onerror = () => { cleanup(); reject(new Error("load error")); };
