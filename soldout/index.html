@@ -409,6 +409,7 @@ function fetchRequestLive(){
           const wholesale = get(c, "wholesale").replace("백제약품","백제").replace("인천약품","인천");
           return [date, get(c,"person"), get(c,"pharmacy"), wholesale, get(c,"item"), get(c,"qty") || "미기재", reqClassify(detail), detail];
         }).filter(Boolean);
+        rows.sort((a, b) => b[0].localeCompare(a[0]));  // 요청일 최신순 (YYYY-MM-DD HH:MM:SS 문자열 비교)
         resolve(rows);
       }catch(e){ reject(e); }
     };
