@@ -203,6 +203,14 @@
 .req-result.red{background:var(--hot-bg);color:var(--hot);}
 .req-detail{color:var(--muted);font-size:12.5px;max-width:220px;}
 tr.req-hide{display:none;}
+.req-fbtn{font-family:inherit;font-size:11px;line-height:1;padding:3px 5px;margin-left:2px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--faint);cursor:pointer;}
+.req-fbtn:hover{background:var(--border);color:var(--ink);}
+.req-fbtn.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);font-weight:800;}
+.req-fpanel{position:fixed;z-index:50;min-width:170px;max-width:240px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:10px 12px;font-size:13px;color:var(--ink);}
+.req-fhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.req-fhead a{color:var(--accent);cursor:pointer;font-size:12px;}
+.req-flist{max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+.req-flist label{display:flex;align-items:center;gap:8px;padding:4px 2px;cursor:pointer;white-space:nowrap;}
 .req-foot{margin-top:14px;font-size:11.5px;color:var(--faint);}
 .tabbar{display:flex;gap:8px;margin:14px 0 18px;}
 .tabbtn{font-family:inherit;font-size:13.5px;font-weight:800;padding:9px 18px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;}
@@ -322,7 +330,7 @@ tr.req-hide{display:none;}
   <table class="req-table">
     <thead>
       <tr>
-        <th>요청일</th><th>사무소</th><th>담당자</th><th>약국명</th><th>VC도매</th><th>품절 품목</th><th>수량</th><th>결과</th><th>입고 시점</th>
+        <th>요청일 <button type="button" class="req-fbtn" data-col="date" aria-label="요청일 필터">▾</button></th><th>사무소 <button type="button" class="req-fbtn" data-col="office" aria-label="사무소 필터">▾</button></th><th>담당자 <button type="button" class="req-fbtn" data-col="person" aria-label="담당자 필터">▾</button></th><th>약국명</th><th>VC도매</th><th>품절 품목</th><th>수량</th><th>결과</th><th>입고 시점</th>
       </tr>
     </thead>
     <tbody id="reqRows"></tbody>
@@ -486,6 +494,7 @@ function reqRender(){
     if(fTeam && team !== fTeam) show = false;
     if(fW && wholesale !== fW) show = false;
     if(fR && badge !== fR) show = false;
+    for(const c in REQ_COLF){ if(REQ_COLF[c] && !REQ_COLF[c].has(reqColVal(r, c))) show = false; }
     return `<tr class="${show?"":"req-hide"}">
       <td class="req-date">${date.slice(5,10)}</td>
       <td>${reqOfficeBadge(team)}</td>
@@ -502,6 +511,55 @@ function reqRender(){
 ["reqQ","reqFTeam","reqFWholesale","reqFResult"].forEach(id => {
   document.getElementById(id).addEventListener("input", reqRender);
 });
+
+// 열 필터(요청일·사무소·담당자): null=전체, Set=체크된 값만 표시
+const REQ_COLF = { date:null, office:null, person:null };
+const REQ_COLNAME = { date:"요청일", office:"사무소", person:"담당자" };
+const reqColVal = (r, c) => c === "date" ? r[0].slice(0, 10) : c === "office" ? (REQ_TEAM_OF[r[1]] || "-") : r[1];
+const reqColLabel = (c, v) => c === "date" ? v.slice(5) : v;
+const reqPanel = document.createElement("div");
+reqPanel.className = "req-fpanel";
+reqPanel.style.display = "none";
+document.body.appendChild(reqPanel);
+let reqPanelCol = null, reqPanelOpts = [];
+function reqClosePanel(){ reqPanel.style.display = "none"; reqPanelCol = null; }
+function reqSyncFilterBtns(){
+  document.querySelectorAll(".req-fbtn").forEach(b => b.classList.toggle("on", !!REQ_COLF[b.dataset.col]));
+}
+function reqOpenPanel(col, btn){
+  if(reqPanelCol === col){ reqClosePanel(); return; }
+  const vals = [...new Set(REQ_DATA.map(r => reqColVal(r, col)))];
+  reqPanelOpts = col === "date" ? vals.sort().reverse() : vals.sort((a, b) => a.localeCompare(b));  // 요청일은 최신순
+  const sel = REQ_COLF[col];
+  reqPanel.innerHTML = `<div class="req-fhead"><b>${REQ_COLNAME[col]}</b><span><a data-a="all">전체</a> · <a data-a="none">해제</a></span></div>` +
+    `<div class="req-flist">` + reqPanelOpts.map((v, i) =>
+      `<label><input type="checkbox" data-i="${i}" ${!sel || sel.has(v) ? "checked" : ""}>${reqColLabel(col, v)}</label>`).join("") + `</div>`;
+  const rc = btn.getBoundingClientRect();
+  reqPanel.style.display = "";
+  reqPanel.style.top = (rc.bottom + 4) + "px";
+  reqPanel.style.left = Math.max(8, Math.min(rc.left, window.innerWidth - reqPanel.offsetWidth - 8)) + "px";
+  reqPanelCol = col;
+}
+function reqApplyPanel(){
+  const boxes = [...reqPanel.querySelectorAll("input[type=checkbox]")];
+  const picked = boxes.filter(b => b.checked).map(b => reqPanelOpts[+b.dataset.i]);
+  REQ_COLF[reqPanelCol] = picked.length === boxes.length ? null : new Set(picked);
+  reqSyncFilterBtns();
+  reqRender();
+}
+document.querySelectorAll(".req-fbtn").forEach(b =>
+  b.addEventListener("click", e => { e.stopPropagation(); reqOpenPanel(b.dataset.col, b); }));
+reqPanel.addEventListener("click", e => {
+  e.stopPropagation();
+  const a = e.target.dataset && e.target.dataset.a;
+  if(!a) return;
+  reqPanel.querySelectorAll("input[type=checkbox]").forEach(b => { b.checked = a === "all"; });
+  reqApplyPanel();
+});
+reqPanel.addEventListener("change", reqApplyPanel);
+document.addEventListener("click", reqClosePanel);
+window.addEventListener("scroll", e => { if(!reqPanel.contains(e.target)) reqClosePanel(); }, true);
+window.addEventListener("resize", reqClosePanel);
 try{ if(sessionStorage.getItem("reqUnlocked") === "1") window.reqUnlock(); }catch(e){}
 </script>
 
