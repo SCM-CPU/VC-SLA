@@ -1101,14 +1101,12 @@ renderAll();
 
   function renderChips(){
     const tot = {}; ROWS.forEach(r => tot[r.co] = (tot[r.co] || 0) + 1);
-    const nAl = ROWS.filter(r => r.alloc > 0).length;
     const chips = [{k: "", t: "전체 " + nf(ROWS.length)}].concat(SRC.map(s => ({k: s.co, t: s.co + " " + nf(tot[s.co] || 0)})));
-    if(nAl) chips.push({k: "__al", t: "VC 배정 " + nAl, al: true});
     document.getElementById("skCo").innerHTML = chips.map(c => `<button type="button" class="sk-chip ${c.al ? "al" : ""} ${cur === c.k ? "on" : ""}" data-k="${c.k}">${c.t}</button>`).join("");
   }
   function renderRows(){
     const q = norm(document.getElementById("skQ").value);
-    const hit = ROWS.filter(r => (cur === "__al" ? r.alloc > 0 : (!cur || r.co === cur)) && (!q || norm(r.name + r.maker).includes(q)));
+    const hit = ROWS.filter(r => (!cur || r.co === cur) && (!q || norm(r.name + r.maker).includes(q)));
     document.getElementById("skList").innerHTML = hit.map(r => `
       <div class="sk-item ${r.alloc ? "al" : ""}" data-co="${r.co}">
         <div class="sk-main">
