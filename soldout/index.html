@@ -216,6 +216,11 @@ tr.req-hide{display:none;}
 .tabbtn{font-family:inherit;font-size:13.5px;font-weight:800;padding:9px 18px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;}
 .tabbtn.active{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent);}
 .tabpanel.hide{display:none;}
+.sk-qty{font-weight:900;color:var(--accent);font-size:15px;}
+.sk-co{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:800;background:var(--accent-soft);color:var(--accent-ink);white-space:nowrap;}
+.sk-alloc{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:800;background:var(--warn-bg);color:var(--warn);white-space:nowrap;margin-left:4px;}
+.sk-nt{color:var(--muted);font-size:12px;text-align:left;}
+@media(max-width:600px){.sk-mk,.sk-nt{display:none;}}
 .pl-cotabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .pl-co{font-family:inherit;font-size:13px;font-weight:800;padding:7px 16px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;}
 .pl-co.on{background:var(--accent);color:#fff;border-color:var(--accent);}
@@ -287,6 +292,7 @@ tr.req-hide{display:none;}
   <div class="tabbar">
     <button class="tabbtn active" id="tabBtnSoldout" type="button">품절 현황</button>
     <button class="tabbtn" id="tabBtnRequest" type="button">VC 요청 현황</button>
+    <button class="tabbtn" id="tabBtnStock" type="button">재고 있는 품절약</button>
     <button class="tabbtn" id="tabBtnList" type="button">협력사 품절약 리스트</button>
   </div>
 
@@ -604,6 +610,27 @@ window.addEventListener("resize", reqClosePanel);
 try{ if(sessionStorage.getItem("reqUnlocked") === "1") window.reqUnlock(); }catch(e){}
 </script>
 
+  </div>
+
+  <div id="tabStock" class="tabpanel hide">
+    <div id="skLock">
+      <p class="req-sub">내부 직원 전용 화면입니다. 비밀번호를 입력하세요.</p>
+      <div class="req-controls">
+        <input type="password" id="skPw" placeholder="비밀번호" style="max-width:160px;">
+        <button class="tabbtn" id="skUnlockBtn" type="button">확인</button>
+      </div>
+      <p class="req-foot" id="skPwErr" style="display:none;color:var(--hot);">비밀번호가 올바르지 않습니다.</p>
+    </div>
+    <div id="skContent" style="display:none;">
+      <h2 class="req-title">재고 있는 품절약 검색</h2>
+      <p class="req-sub">협력도매 3사(백제·복산·인천)가 기재한 품절약 리스트에서 <b>재고가 있는 품목</b>만 모았습니다 · <span id="skAsOf">불러오는 중…</span></p>
+      <div class="req-controls">
+        <input type="search" id="skQ" placeholder="제품명·제약사로 검색 (예: 아젤리아, 람노스)" autocomplete="off">
+      </div>
+      <div class="pl-cotabs" id="skCo"></div>
+      <div class="req-table-wrap"><table class="pl-tbl" id="skTbl"><thead><tr><th>협력사</th><th class="l">품목명</th><th class="sk-mk">제약사</th><th>재고</th><th class="sk-nt">비고</th></tr></thead><tbody id="skRows"></tbody></table></div>
+      <p class="req-foot" id="skFoot"></p>
+    </div>
   </div>
 
   <div id="tabList" class="tabpanel hide">
@@ -958,14 +985,158 @@ renderAll();
 </script>
 
 <script>
+(function(){
+  const ALLOC = {
+ "백제": [
+  {
+   "name": "릭시아나정30mg(제약사품절) 28T",
+   "maker": "대웅제약",
+   "alloc": 100,
+   "note": "VC 배정 완료: 기존 50 + 추가 50 = 총 100"
+  },
+  {
+   "name": "피알디현탁시럽0.1%(제약사품절) 500ML",
+   "maker": "한림제약",
+   "alloc": 50,
+   "note": "VC 배정 완료: 기존 10 + 추가 40 = 총 50"
+  },
+  {
+   "name": "베오바정50mg(제약사품절) 30T",
+   "maker": "제일약품",
+   "alloc": 360,
+   "note": "VC 배정 완료: 추가 320 (총 360)"
+  },
+  {
+   "name": "아바미스나잘스프레이27.5mcg(GSK) 120회/1EA",
+   "maker": "광동제약",
+   "alloc": 48,
+   "note": "VC 배정 완료: 48"
+  }
+ ],
+ "asof": "10/15"
+};
+  const SRC = [
+    {co:"복산", id:"112IdD5Y5Ok_iJvSgJHNuIO0G1ZPPFXioX8l9kIg5Fl0"},
+    {co:"백제", id:"1XgT_IbVaBwAISwDmUCavZMv3TqKUOi9GhsvcqmiHmgw"},
+    {co:"인천", id:"12reJpgDKl-SLe4J3UoYpZVYgDlHwQpXBaL4Ha5DuTME"},
+  ];
+  const GID = "399279356";   // 각 문서의 '품절약 리스트' 탭
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const nf = n => n.toLocaleString("ko-KR");
+  const norm = s => String(s).replace(/\([^)]*\)|\[[^\]]*\]/g, "").replace(/[\s·\-_/,.*`']/g, "").toLowerCase();
+  let seq = 0, ROWS = [], META = {}, cur = "", ready = false;
+
+  function fetchSheet(id){
+    return new Promise((resolve, reject) => {
+      const cb = "skCb_" + (seq++);
+      const s = document.createElement("script");
+      const timer = setTimeout(() => { done(); reject(new Error("timeout")); }, 20000);
+      function done(){ clearTimeout(timer); delete window[cb]; s.remove(); }
+      window[cb] = j => { done(); resolve(j); };
+      s.onerror = () => { done(); reject(new Error("load")); };
+      s.src = "https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?tqx=responseHandler:" + cb + "&gid=" + GID + "&headers=2";
+      document.body.appendChild(s);
+    });
+  }
+  // 시트 → {asof, rows:[{name,maker,stock}]}; 가장 마지막 날짜 열 기준(10/15가 있으면 10/15, 없으면 그 이전 최신일)
+  function parse(j){
+    const cols = j.table.cols.map(c => (c.label || "").trim());
+    const iName = cols.findIndex(c => c.includes("품목명"));
+    const iMk = cols.findIndex(c => c.includes("메이커"));
+    if(iName < 0) throw new Error("column mismatch");
+    const dates = [];
+    cols.forEach((c, i) => { const m = c.match(/(\d{1,2})\/(\d{1,2})$/); if(m) dates.push({i, label: (+m[1]) + "/" + (+m[2])}); });
+    const val = (r, i) => { const c = r.c[i]; return c && c.v != null ? c.v : null; };
+    let pick = null;
+    for(let k = dates.length - 1; k >= 0 && !pick; k--){
+      if(j.table.rows.some(r => typeof val(r, dates[k].i) === "number")) pick = dates[k];
+    }
+    if(!pick) throw new Error("no date");
+    const rows = [];
+    j.table.rows.forEach(r => {
+      const name = val(r, iName), st = val(r, pick.i);
+      if(!name || typeof st !== "number" || st <= 0) return;
+      rows.push({name: String(name).replace(/^[`'\s]+/, "").trim(), maker: iMk >= 0 && val(r, iMk) ? String(val(r, iMk)).replace(/^[\d]+-/, "").replace(/\(주\)|\(#[^)]*\)|\(#\)/g, "").replace(/-매입$/, "").trim() : "", stock: st});
+    });
+    return {asof: pick.label, rows};
+  }
+
+  function build(results){
+    ROWS = []; META = {};
+    results.forEach((r, k) => {
+      const co = SRC[k].co;
+      if(r.err){ META[co] = {err: true}; return; }
+      META[co] = {asof: r.asof, n: r.rows.length};
+      r.rows.forEach(x => ROWS.push({co, name: x.name, maker: x.maker, stock: x.stock, alloc: 0, note: ""}));
+    });
+    // VC 배정(공급사 회신)을 시트 품목에 병합, 시트에 없으면 배정 전용 행으로 추가
+    Object.keys(ALLOC).filter(k => k !== "asof").forEach(co => {
+      ALLOC[co].forEach(a => {
+        const hit = ROWS.find(r => r.co === co && norm(r.name) === norm(a.name));
+        if(hit){ hit.alloc = a.alloc; hit.note = a.note; }
+        else ROWS.push({co, name: a.name, maker: a.maker || "", stock: null, alloc: a.alloc, note: a.note});
+        META[co] = Object.assign({n: 0}, META[co] || {}, {allocAsOf: ALLOC.asof});
+      });
+    });
+    // VC 배정 품목을 맨 위, 그 다음 재고 많은 순
+    ROWS.sort((a, b) => ((b.alloc > 0) - (a.alloc > 0)) || ((b.stock || 0) - (a.stock || 0)) || a.name.localeCompare(b.name));
+  }
+
+  function renderChips(){
+    const tot = {}; ROWS.forEach(r => tot[r.co] = (tot[r.co] || 0) + 1);
+    const chips = [{k: "", t: "전체 " + nf(ROWS.length)}].concat(SRC.map(s => ({k: s.co, t: s.co + " " + nf(tot[s.co] || 0)})));
+    document.getElementById("skCo").innerHTML = chips.map(c => `<button type="button" class="pl-co ${cur === c.k ? "on" : ""}" data-k="${c.k}">${c.t}</button>`).join("");
+  }
+  function renderRows(){
+    const q = norm(document.getElementById("skQ").value);
+    const hit = ROWS.filter(r => (!cur || r.co === cur) && (!q || norm(r.name + r.maker).includes(q)));
+    document.getElementById("skRows").innerHTML = hit.map(r => `<tr><td><span class="sk-co">${r.co}</span></td><td class="l">${esc(r.name)}${r.alloc ? `<span class="sk-alloc">VC 배정 ${nf(r.alloc)}</span>` : ""}</td><td class="sk-mk">${esc(r.maker)}</td><td><span class="sk-qty">${r.stock != null ? nf(r.stock) : "-"}</span></td><td class="sk-nt">${esc(r.note || "")}</td></tr>`).join("") ||
+      `<tr><td colspan="5" style="padding:30px;color:var(--muted)">검색 결과가 없습니다.</td></tr>`;
+    document.getElementById("skFoot").textContent = nf(hit.length) + "건 표시 · 재고는 협력사가 구글시트에 기재한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다.";
+  }
+  function load(){
+    const asof = document.getElementById("skAsOf");
+    asof.textContent = "불러오는 중…";
+    Promise.all(SRC.map(s => fetchSheet(s.id).then(parse).catch(e => ({err: true, rows: []})))).then(results => {
+      build(results);
+      const parts = SRC.map(s => META[s.co] && !META[s.co].err ? `${s.co} ${META[s.co].asof} 기준` : `${s.co} 불러오기 실패`);
+      const failed = results.filter(r => r.err).length;
+      asof.textContent = "실시간 연동 · " + parts.join(" / ") + (failed ? " — 일부 협력사 시트를 불러오지 못했습니다." : "");
+      renderChips(); renderRows();
+    });
+  }
+  function unlock(){
+    document.getElementById("skLock").style.display = "none";
+    document.getElementById("skContent").style.display = "";
+    if(!ready){ ready = true; load(); }
+  }
+  document.getElementById("skUnlockBtn").addEventListener("click", () => {
+    if(document.getElementById("skPw").value === "1234"){
+      try{ sessionStorage.setItem("reqUnlocked", "1"); }catch(e){}
+      document.getElementById("skPwErr").style.display = "none";
+      unlock();
+    } else document.getElementById("skPwErr").style.display = "";
+  });
+  document.getElementById("skPw").addEventListener("keydown", e => { if(e.key === "Enter") document.getElementById("skUnlockBtn").click(); });
+  document.getElementById("skCo").addEventListener("click", e => { const b = e.target.closest("[data-k]"); if(b){ cur = b.dataset.k; renderChips(); renderRows(); } });
+  document.getElementById("skQ").addEventListener("input", renderRows);
+  window.skOnShow = () => { try{ if(sessionStorage.getItem("reqUnlocked") === "1") unlock(); }catch(e){} };
+})();
+</script>
+
+<script>
 function reqShowTab(name){
   document.getElementById("tabSoldout").classList.toggle("hide", name !== "soldout");
   document.getElementById("tabRequest").classList.toggle("hide", name !== "request");
+  document.getElementById("tabStock").classList.toggle("hide", name !== "stock");
   document.getElementById("tabList").classList.toggle("hide", name !== "list");
   document.getElementById("tabBtnSoldout").classList.toggle("active", name === "soldout");
   document.getElementById("tabBtnRequest").classList.toggle("active", name === "request");
+  document.getElementById("tabBtnStock").classList.toggle("active", name === "stock");
   document.getElementById("tabBtnList").classList.toggle("active", name === "list");
+  if(name === "stock" && window.skOnShow) window.skOnShow();
 }
+document.getElementById("tabBtnStock").addEventListener("click", () => reqShowTab("stock"));
 document.getElementById("tabBtnList").addEventListener("click", () => reqShowTab("list"));
 document.getElementById("tabBtnSoldout").addEventListener("click", () => reqShowTab("soldout"));
 document.getElementById("tabBtnRequest").addEventListener("click", () => reqShowTab("request"));
