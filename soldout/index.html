@@ -1028,6 +1028,18 @@ renderAll();
    "maker": "광동제약",
    "alloc": 48,
    "note": "VC 배정 완료: 48"
+  },
+  {
+   "name": "듀라티얼즈안연고3.5g(제약사품절) 1EA",
+   "maker": "알콘",
+   "alloc": 50,
+   "note": "VC 배정 완료: 50"
+  },
+  {
+   "name": "리포직점안겔10g(제약사품절) 1EA",
+   "maker": "바슈롬",
+   "alloc": 20,
+   "note": "VC 배정 완료: 20"
   }
  ],
  "asof": "10/15"
@@ -1089,8 +1101,10 @@ renderAll();
     // VC 배정(공급사 회신)을 시트 품목에 병합, 시트에 없으면 배정 전용 행으로 추가
     Object.keys(ALLOC).filter(k => k !== "asof").forEach(co => {
       ALLOC[co].forEach(a => {
-        const hit = ROWS.find(r => r.co === co && norm(r.name) === norm(a.name));
-        if(hit){ hit.alloc = a.alloc; hit.note = a.note; }
+        const na = norm(a.name);
+        const hit = ROWS.find(r => { if(r.co !== co) return false; const nr = norm(r.name);
+          return nr === na || (nr.length >= 6 && (na.startsWith(nr) || nr.startsWith(na))); });
+        if(hit){ hit.alloc = a.alloc; hit.note = a.note; hit.name = a.name; if(!hit.maker && a.maker) hit.maker = a.maker; }
         else ROWS.push({co, name: a.name, maker: a.maker || "", stock: null, alloc: a.alloc, note: a.note});
         META[co] = Object.assign({n: 0}, META[co] || {}, {allocAsOf: ALLOC.asof});
       });
