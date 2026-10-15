@@ -216,11 +216,27 @@ tr.req-hide{display:none;}
 .tabbtn{font-family:inherit;font-size:13.5px;font-weight:800;padding:9px 18px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;}
 .tabbtn.active{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent);}
 .tabpanel.hide{display:none;}
-.sk-qty{font-weight:900;color:var(--accent);font-size:15px;}
-.sk-co{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:800;background:var(--accent-soft);color:var(--accent-ink);white-space:nowrap;}
-.sk-alloc{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:800;background:var(--warn-bg);color:var(--warn);white-space:nowrap;margin-left:4px;}
-.sk-nt{color:var(--muted);font-size:12px;text-align:left;}
-@media(max-width:600px){.sk-mk,.sk-nt{display:none;}}
+.sk-sticky{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 0 6px;margin:0 -2px;}
+.sk-search{width:100%;font-family:inherit;font-size:16px;padding:12px 16px;border-radius:14px;border:1px solid var(--border);background:var(--surface);color:var(--ink);}
+.sk-chips{display:flex;gap:8px;overflow-x:auto;padding:10px 2px 2px;scrollbar-width:none;}
+.sk-chips::-webkit-scrollbar{display:none;}
+.sk-chip{flex:none;font-family:inherit;font-size:14px;font-weight:800;padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap;}
+.sk-chip.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.sk-chip.al{border-color:var(--warn);color:var(--warn);}
+.sk-chip.al.on{background:var(--warn);color:#fff;}
+.sk-count{font-size:12.5px;color:var(--muted);margin:10px 4px 8px;}
+.sk-item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-left:5px solid var(--c,var(--accent));border-radius:14px;padding:12px 14px;margin-bottom:8px;}
+.sk-item.al{background:var(--warn-bg);}
+.sk-item[data-co="복산"]{--c:var(--vc1);} .sk-item[data-co="백제"]{--c:var(--green);} .sk-item[data-co="인천"]{--c:var(--warn);}
+.sk-main{flex:1;min-width:0;}
+.sk-name{font-size:15px;font-weight:700;line-height:1.4;overflow-wrap:anywhere;}
+.sk-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--muted);}
+.sk-co{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:800;background:var(--c);color:#fff;white-space:nowrap;}
+.sk-alloc{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:800;background:var(--warn);color:#fff;white-space:nowrap;}
+.sk-q{text-align:right;flex:none;min-width:58px;}
+.sk-q b{display:block;font-size:22px;font-weight:900;color:var(--ink);letter-spacing:-.5px;line-height:1.1;}
+.sk-q small{font-size:11px;color:var(--muted);font-weight:700;}
+.sk-empty{text-align:center;color:var(--muted);padding:40px 0;}
 .pl-cotabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .pl-co{font-family:inherit;font-size:13px;font-weight:800;padding:7px 16px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;}
 .pl-co.on{background:var(--accent);color:#fff;border-color:var(--accent);}
@@ -398,7 +414,7 @@ tr.req-hide{display:none;}
   document.getElementById("reqUnlockBtn").addEventListener("click", () => {
     const v = document.getElementById("reqPw").value;
     if(v === REQ_PW){
-      try{ sessionStorage.setItem("reqUnlocked", "1"); }catch(e){}
+      try{ sessionStorage.setItem("reqUnlocked", "1"); localStorage.setItem("reqUnlocked", "1"); }catch(e){}
       document.getElementById("reqPwErr").style.display = "none";
       reqUnlock();
     } else {
@@ -607,7 +623,7 @@ reqPanel.addEventListener("change", reqApplyPanel);
 document.addEventListener("click", reqClosePanel);
 window.addEventListener("scroll", e => { if(!reqPanel.contains(e.target)) reqClosePanel(); }, true);
 window.addEventListener("resize", reqClosePanel);
-try{ if(sessionStorage.getItem("reqUnlocked") === "1") window.reqUnlock(); }catch(e){}
+try{ if((sessionStorage.getItem("reqUnlocked") === "1" || localStorage.getItem("reqUnlocked") === "1")) window.reqUnlock(); }catch(e){}
 </script>
 
   </div>
@@ -623,12 +639,13 @@ try{ if(sessionStorage.getItem("reqUnlocked") === "1") window.reqUnlock(); }catc
     </div>
     <div id="skContent" style="display:none;">
       <h2 class="req-title">재고 있는 품절약 검색</h2>
-      <p class="req-sub">협력도매 3사(백제·복산·인천)가 기재한 품절약 리스트에서 <b>재고가 있는 품목</b>만 모았습니다 · <span id="skAsOf">불러오는 중…</span></p>
-      <div class="req-controls">
-        <input type="search" id="skQ" placeholder="제품명·제약사로 검색 (예: 아젤리아, 람노스)" autocomplete="off">
+      <p class="req-sub sk-desc">협력도매 3사가 기재한 품절약 중 <b>재고가 있는 품목</b>만 모았습니다.<br><span id="skAsOf">불러오는 중…</span></p>
+      <div class="sk-sticky">
+        <input type="search" id="skQ" class="sk-search" placeholder="제품명 검색 (예: 람노스)" autocomplete="off" enterkeyhint="search">
+        <div class="sk-chips" id="skCo"></div>
       </div>
-      <div class="pl-cotabs" id="skCo"></div>
-      <div class="req-table-wrap"><table class="pl-tbl" id="skTbl"><thead><tr><th>협력사</th><th class="l">품목명</th><th class="sk-mk">제약사</th><th>재고</th><th class="sk-nt">비고</th></tr></thead><tbody id="skRows"></tbody></table></div>
+      <div class="sk-count" id="skCount"></div>
+      <div class="sk-list" id="skList"></div>
       <p class="req-foot" id="skFoot"></p>
     </div>
   </div>
@@ -973,14 +990,14 @@ renderAll();
   window.plUnlock = plUnlock;
   document.getElementById("plUnlockBtn").addEventListener("click", () => {
     if(document.getElementById("plPw").value === "1234"){
-      try{ sessionStorage.setItem("reqUnlocked", "1"); }catch(e){}
+      try{ sessionStorage.setItem("reqUnlocked", "1"); localStorage.setItem("reqUnlocked", "1"); }catch(e){}
       document.getElementById("plPwErr").style.display = "none";
       plUnlock();
       if(window.reqUnlock) window.reqUnlock();
     } else document.getElementById("plPwErr").style.display = "";
   });
   document.getElementById("plPw").addEventListener("keydown", e => { if(e.key === "Enter") document.getElementById("plUnlockBtn").click(); });
-  try{ if(sessionStorage.getItem("reqUnlocked") === "1") plUnlock(); }catch(e){}
+  try{ if((sessionStorage.getItem("reqUnlocked") === "1" || localStorage.getItem("reqUnlocked") === "1")) plUnlock(); }catch(e){}
 })();
 </script>
 
@@ -1084,15 +1101,24 @@ renderAll();
 
   function renderChips(){
     const tot = {}; ROWS.forEach(r => tot[r.co] = (tot[r.co] || 0) + 1);
+    const nAl = ROWS.filter(r => r.alloc > 0).length;
     const chips = [{k: "", t: "전체 " + nf(ROWS.length)}].concat(SRC.map(s => ({k: s.co, t: s.co + " " + nf(tot[s.co] || 0)})));
-    document.getElementById("skCo").innerHTML = chips.map(c => `<button type="button" class="pl-co ${cur === c.k ? "on" : ""}" data-k="${c.k}">${c.t}</button>`).join("");
+    if(nAl) chips.push({k: "__al", t: "VC 배정 " + nAl, al: true});
+    document.getElementById("skCo").innerHTML = chips.map(c => `<button type="button" class="sk-chip ${c.al ? "al" : ""} ${cur === c.k ? "on" : ""}" data-k="${c.k}">${c.t}</button>`).join("");
   }
   function renderRows(){
     const q = norm(document.getElementById("skQ").value);
-    const hit = ROWS.filter(r => (!cur || r.co === cur) && (!q || norm(r.name + r.maker).includes(q)));
-    document.getElementById("skRows").innerHTML = hit.map(r => `<tr><td><span class="sk-co">${r.co}</span></td><td class="l">${esc(r.name)}${r.alloc ? `<span class="sk-alloc">VC 배정 ${nf(r.alloc)}</span>` : ""}</td><td class="sk-mk">${esc(r.maker)}</td><td><span class="sk-qty">${r.stock != null ? nf(r.stock) : "-"}</span></td><td class="sk-nt">${esc(r.note || "")}</td></tr>`).join("") ||
-      `<tr><td colspan="5" style="padding:30px;color:var(--muted)">검색 결과가 없습니다.</td></tr>`;
-    document.getElementById("skFoot").textContent = nf(hit.length) + "건 표시 · 재고는 협력사가 구글시트에 기재한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다.";
+    const hit = ROWS.filter(r => (cur === "__al" ? r.alloc > 0 : (!cur || r.co === cur)) && (!q || norm(r.name + r.maker).includes(q)));
+    document.getElementById("skList").innerHTML = hit.map(r => `
+      <div class="sk-item ${r.alloc ? "al" : ""}" data-co="${r.co}">
+        <div class="sk-main">
+          <div class="sk-name">${esc(r.name)}</div>
+          <div class="sk-meta"><span class="sk-co">${r.co}</span>${r.alloc ? `<span class="sk-alloc">VC 배정 ${nf(r.alloc)}개</span>` : ""}${r.maker ? `<span>${esc(r.maker)}</span>` : ""}</div>
+        </div>
+        <div class="sk-q">${r.stock != null ? `<b>${nf(r.stock)}</b><small>재고</small>` : `<b>${nf(r.alloc)}</b><small>VC 배정</small>`}</div>
+      </div>`).join("") || `<div class="sk-empty">검색 결과가 없습니다.</div>`;
+    document.getElementById("skCount").textContent = nf(hit.length) + "건";
+    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다.";
   }
   function load(){
     const asof = document.getElementById("skAsOf");
@@ -1101,7 +1127,7 @@ renderAll();
       build(results);
       const parts = SRC.map(s => META[s.co] && !META[s.co].err ? `${s.co} ${META[s.co].asof} 기준` : `${s.co} 불러오기 실패`);
       const failed = results.filter(r => r.err).length;
-      asof.textContent = "실시간 연동 · " + parts.join(" / ") + (failed ? " — 일부 협력사 시트를 불러오지 못했습니다." : "");
+      asof.textContent = parts.join(" · ") + (failed ? " — 일부 시트를 불러오지 못했습니다." : "");
       renderChips(); renderRows();
     });
   }
@@ -1112,15 +1138,15 @@ renderAll();
   }
   document.getElementById("skUnlockBtn").addEventListener("click", () => {
     if(document.getElementById("skPw").value === "1234"){
-      try{ sessionStorage.setItem("reqUnlocked", "1"); }catch(e){}
+      try{ sessionStorage.setItem("reqUnlocked", "1"); localStorage.setItem("reqUnlocked", "1"); }catch(e){}
       document.getElementById("skPwErr").style.display = "none";
       unlock();
     } else document.getElementById("skPwErr").style.display = "";
   });
   document.getElementById("skPw").addEventListener("keydown", e => { if(e.key === "Enter") document.getElementById("skUnlockBtn").click(); });
-  document.getElementById("skCo").addEventListener("click", e => { const b = e.target.closest("[data-k]"); if(b){ cur = b.dataset.k; renderChips(); renderRows(); } });
+  document.getElementById("skCo").addEventListener("click", e => { const b = e.target.closest("[data-k]"); if(b){ cur = (cur === b.dataset.k && cur !== "") ? "" : b.dataset.k; renderChips(); renderRows(); } });
   document.getElementById("skQ").addEventListener("input", renderRows);
-  window.skOnShow = () => { try{ if(sessionStorage.getItem("reqUnlocked") === "1") unlock(); }catch(e){} };
+  window.skOnShow = () => { try{ if((sessionStorage.getItem("reqUnlocked") === "1" || localStorage.getItem("reqUnlocked") === "1")) unlock(); }catch(e){} };
 })();
 </script>
 
@@ -1137,6 +1163,7 @@ function reqShowTab(name){
   if(name === "stock" && window.skOnShow) window.skOnShow();
 }
 document.getElementById("tabBtnStock").addEventListener("click", () => reqShowTab("stock"));
+if(location.hash === "#stock") reqShowTab("stock");
 document.getElementById("tabBtnList").addEventListener("click", () => reqShowTab("list"));
 document.getElementById("tabBtnSoldout").addEventListener("click", () => reqShowTab("soldout"));
 document.getElementById("tabBtnRequest").addEventListener("click", () => reqShowTab("request"));
