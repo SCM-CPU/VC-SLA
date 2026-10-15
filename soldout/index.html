@@ -306,13 +306,13 @@ tr.req-hide{display:none;}
   </div>
 
   <div class="tabbar">
-    <button class="tabbtn active" id="tabBtnSoldout" type="button">품절 현황</button>
+    <button class="tabbtn active" id="tabBtnStock" type="button">재고 있는 품절약</button>
+    <button class="tabbtn" id="tabBtnSoldout" type="button">품절 현황</button>
     <button class="tabbtn" id="tabBtnRequest" type="button">VC 요청 현황</button>
-    <button class="tabbtn" id="tabBtnStock" type="button">재고 있는 품절약</button>
     <button class="tabbtn" id="tabBtnList" type="button">협력사 품절약 리스트</button>
   </div>
 
-  <div id="tabSoldout" class="tabpanel">
+  <div id="tabSoldout" class="tabpanel hide">
   <div class="searchRow">
     <input type="search" id="q" placeholder="제품명으로 검색 (예: 타이레놀 — 일부만 입력해도 찾아줍니다)" autocomplete="off">
     <p class="searchStatus" id="searchStatus"></p>
@@ -628,7 +628,7 @@ try{ if((sessionStorage.getItem("reqUnlocked") === "1" || localStorage.getItem("
 
   </div>
 
-  <div id="tabStock" class="tabpanel hide">
+  <div id="tabStock" class="tabpanel">
     <div id="skLock">
       <p class="req-sub">내부 직원 전용 화면입니다. 비밀번호를 입력하세요.</p>
       <div class="req-controls">
@@ -1161,7 +1161,8 @@ function reqShowTab(name){
   if(name === "stock" && window.skOnShow) window.skOnShow();
 }
 document.getElementById("tabBtnStock").addEventListener("click", () => reqShowTab("stock"));
-if(location.hash === "#stock") reqShowTab("stock");
+// 첫 화면 = 재고 있는 품절약. 주소 뒤 #soldout / #request / #list 로 다른 탭을 바로 열 수 있음
+reqShowTab({soldout: "soldout", request: "request", list: "list"}[location.hash.slice(1)] || "stock");
 document.getElementById("tabBtnList").addEventListener("click", () => reqShowTab("list"));
 document.getElementById("tabBtnSoldout").addEventListener("click", () => reqShowTab("soldout"));
 document.getElementById("tabBtnRequest").addEventListener("click", () => reqShowTab("request"));
