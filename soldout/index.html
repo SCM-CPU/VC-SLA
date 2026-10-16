@@ -1659,12 +1659,11 @@ renderAll();
     const iMk = cols.findIndex(c => c.includes("메이커"));
     if(iName < 0) throw new Error("column mismatch");
     const dates = [];
-    cols.forEach((c, i) => { const m = c.match(/(\d{1,2})\/(\d{1,2})$/); if(m) dates.push({i, label: (+m[1]) + "/" + (+m[2])}); });
+    cols.forEach((c, i) => { const m = c.match(/(\d{1,2})\/(\d{1,2})$/); if(m) dates.push({i, label: (+m[1]) + "/" + (+m[2]), key: (+m[1]) * 100 + (+m[2])}); });
     const val = (r, i) => { const c = r.c[i]; return c && c.v != null ? c.v : null; };
+    // 열 위치가 아니라 날짜가 가장 늦은 열을 기준일로 (시트 뒤쪽에 과거 월 열이 붙어 있어도 최신일 사용)
     let pick = null;
-    for(let k = dates.length - 1; k >= 0 && !pick; k--){
-      if(j.table.rows.some(r => typeof val(r, dates[k].i) === "number")) pick = dates[k];
-    }
+    dates.forEach(d => { if((!pick || d.key >= pick.key) && j.table.rows.some(r => typeof val(r, d.i) === "number")) pick = d; });
     if(!pick) throw new Error("no date");
     const rows = [];
     j.table.rows.forEach(r => {
