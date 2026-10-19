@@ -1112,8 +1112,8 @@ renderAll();
   {
    "name": "아젤리아크림30g 1EA",
    "maker": "레오파마",
-   "alloc": 345,
-   "note": "VC 배정: 총 수량 425 − 10/19 취합 주문 80 = 345"
+   "alloc": 425,
+   "note": "VC 배정: 총 수량 425"
   },
   {
    "name": "부로멜라장용정100mg 300T",
@@ -1388,8 +1388,8 @@ renderAll();
   {
    "name": "이모튼캅셀(제약사품절) 30C",
    "maker": "종근당",
-   "alloc": 227,
-   "note": "VC 배정: 총 수량 312 − 10/19 취합 주문 85 = 227"
+   "alloc": 312,
+   "note": "VC 배정: 총 수량 312"
   },
   {
    "name": "이모튼캅셀(제약사품절) 90C",
@@ -1721,7 +1721,7 @@ renderAll();
         <div class="sk-q">${r.stock != null ? `<b>${nf(r.stock)}</b><small>재고</small>` : `<b>${nf(r.alloc)}</b><small>VC 배정</small>`}</div>
       </div>`).join("") || `<div class="sk-empty">검색 결과가 없습니다.</div>`;
     document.getElementById("skCount").textContent = nf(hit.length) + "건";
-    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다. 백제 VC 배정은 10/20 파일 총 수량에서, 복산·인천(구글시트)은 시트 수치에서 10/19 취합 주문분을 차감한 지금 재고입니다.";
+    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다. 백제 VC 배정은 10/20 파일 총수량 그대로, 복산·인천(구글시트)은 시트 수치에서 10/19 취합 주문분을 차감한 지금 재고입니다.";
   }
   function load(){
     const asof = document.getElementById("skAsOf");
