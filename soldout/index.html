@@ -1112,8 +1112,8 @@ renderAll();
   {
    "name": "아젤리아크림30g 1EA",
    "maker": "레오파마",
-   "alloc": 480,
-   "note": "VC 배정: 총 수량 480"
+   "alloc": 400,
+   "note": "VC 배정: 총 수량 480 − 10/19 주문 80 = 400"
   },
   {
    "name": "부로멜라장용정100mg 300T",
@@ -1388,8 +1388,8 @@ renderAll();
   {
    "name": "이모튼캅셀(제약사품절) 30C",
    "maker": "종근당",
-   "alloc": 500,
-   "note": "VC 배정: 총 수량 500"
+   "alloc": 415,
+   "note": "VC 배정: 총 수량 500 − 10/19 주문 85 = 415"
   },
   {
    "name": "이모튼캅셀(제약사품절) 90C",
@@ -1592,7 +1592,7 @@ renderAll();
  ],
  "asof": "10/19"
 };
-  const STOCKX = {"asof":"10/19","rows":[],"over":[{"co":"백제","pat":"베오바정50mg","base":360,"stock":520},{"co":"백제","pat":"릭시아나정30mg","base":100,"stock":100}]};
+  const STOCKX = {"asof":"10/19","rows":[],"over":[{"co":"백제","pat":"베오바정50mg","base":360,"stock":520},{"co":"백제","pat":"릭시아나정30mg","base":100,"stock":100},{"co":"복산","pat":"이모튼캡슐300/30C","base":15,"stock":0},{"co":"복산","pat":"이모튼캡슐300/90C","base":20,"stock":0},{"co":"복산","pat":"아젤리아크림30g","base":28,"stock":0},{"co":"복산","pat":"리바로정2/30T","base":5,"stock":0},{"co":"복산","pat":"시카플루이드점안겔10g","base":10,"stock":0},{"co":"복산","pat":"리포직이디오점안겔","base":30,"stock":28},{"co":"인천","pat":"이모튼캅셀30c","base":15,"stock":0}]};
   const SRC = [
     {co:"복산", id:"112IdD5Y5Ok_iJvSgJHNuIO0G1ZPPFXioX8l9kIg5Fl0"},
     {co:"백제", id:"1XgT_IbVaBwAISwDmUCavZMv3TqKUOi9GhsvcqmiHmgw"},
@@ -1668,7 +1668,8 @@ renderAll();
       if(!dup) ROWS.push({co: x.co, name: x.name, maker: "", stock: x.stock, alloc: 0, note: ""});
     });
     // 요청 접수분을 차감한 잔여 수량으로 덮어쓰기 — 시트 값이 base와 같을 때만 적용(시트가 갱신되면 무시)
-    (STOCKX.over || []).forEach(o => { const np = norm(o.pat); ROWS.forEach(r => { if(r.co === o.co && r.stock === o.base && norm(r.name).includes(np)) r.stock = o.stock; }); });
+    (STOCKX.over || []).forEach(o => { const np = norm(o.pat); ROWS.forEach(r => { if(r.co === o.co && r.stock === o.base && norm(r.name).includes(np)){ r.stock = o.stock; if(o.stock <= 0) r._rm = true; } }); });
+    ROWS = ROWS.filter(r => !r._rm);
     // VC 배정 품목을 맨 위, 그 다음 재고 많은 순
     ROWS.sort((a, b) => ((b.alloc > 0) - (a.alloc > 0)) || ((b.alloc || 0) - (a.alloc || 0)) || ((b.stock || 0) - (a.stock || 0)) || a.name.localeCompare(b.name));
   }
@@ -1690,7 +1691,7 @@ renderAll();
         <div class="sk-q">${r.stock != null ? `<b>${nf(r.stock)}</b><small>재고</small>` : `<b>${nf(r.alloc)}</b><small>VC 배정</small>`}</div>
       </div>`).join("") || `<div class="sk-empty">검색 결과가 없습니다.</div>`;
     document.getElementById("skCount").textContent = nf(hit.length) + "건";
-    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다. 백제 VC 배정 수량은 백제가 기재한 총 수량(10/19 파일 기준)입니다. 복산·인천은 협력사 구글시트 수치입니다.";
+    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다. 백제 VC 배정은 10/19 파일 총 수량에서, 복산·인천(구글시트)은 시트 수치에서 10/19 취합 주문분을 차감한 지금 재고입니다.";
   }
   function load(){
     const asof = document.getElementById("skAsOf");
