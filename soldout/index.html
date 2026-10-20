@@ -1622,7 +1622,7 @@ renderAll();
  ],
  "asof": "10/20"
 };
-  const STOCKX = {"asof":"10/20","rows":[],"over":[{"co":"백제","pat":"베오바정50mg","base":360,"stock":615},{"co":"백제","pat":"릭시아나정30mg","base":100,"stock":57},{"co":"복산","pat":"이모튼캡슐300/30C","base":15,"stock":0},{"co":"복산","pat":"이모튼캡슐300/90C","base":20,"stock":0},{"co":"복산","pat":"아젤리아크림30g","base":28,"stock":0},{"co":"복산","pat":"리바로정2/30T","base":5,"stock":0},{"co":"복산","pat":"시카플루이드점안겔10g","base":10,"stock":0},{"co":"복산","pat":"리포직이디오점안겔","base":30,"stock":28},{"co":"복산","pat":"듀락칸시럽500ml","base":30,"stock":25},{"co":"인천","pat":"이모튼캅셀30c","base":15,"stock":0}]};
+  const STOCKX = {"asof":"10/20","rows":[],"over":[{"co":"백제","pat":"베오바정50mg","base":360,"stock":615},{"co":"백제","pat":"릭시아나정30mg","base":100,"stock":57},{"co":"인천","pat":"이모튼캅셀30c","base":15,"stock":0}]};
   const SRC = [
     {co:"복산", id:"112IdD5Y5Ok_iJvSgJHNuIO0G1ZPPFXioX8l9kIg5Fl0"},
     {co:"백제", id:"1XgT_IbVaBwAISwDmUCavZMv3TqKUOi9GhsvcqmiHmgw"},
@@ -1721,7 +1721,7 @@ renderAll();
         <div class="sk-q">${r.stock != null ? `<b>${nf(r.stock)}</b><small>재고</small>` : `<b>${nf(r.alloc)}</b><small>VC 배정</small>`}</div>
       </div>`).join("") || `<div class="sk-empty">검색 결과가 없습니다.</div>`;
     document.getElementById("skCount").textContent = nf(hit.length) + "건";
-    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다. 백제 VC 배정은 10/20 파일 총수량에서, 복산·인천(구글시트)은 시트 수치에서 10/19 주문분을 차감한 지금 재고입니다.";
+    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다. 백제 VC 배정은 10/20 파일 총수량에서, 복산(구글시트)은 시트 수치 그대로, 인천은 시트 수치에서 10/19 주문분을 차감한 지금 재고입니다.";
   }
   function load(){
     const asof = document.getElementById("skAsOf");
