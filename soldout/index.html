@@ -1622,11 +1622,11 @@ renderAll();
  ],
  "asof": "10/20"
 };
-  const STOCKX = {"asof":"10/20","rows":[],"over":[{"co":"백제","pat":"베오바정50mg","base":360,"stock":615},{"co":"백제","pat":"릭시아나정30mg","base":100,"stock":57},{"co":"인천","pat":"이모튼캅셀30c","base":15,"stock":0}]};
+  const STOCKX = {"asof":"10/20","rows":[],"over":[{"co":"백제","pat":"베오바정50mg","base":360,"stock":615},{"co":"백제","pat":"릭시아나정30mg","base":100,"stock":57}]};
   const SRC = [
     {co:"복산", id:"112IdD5Y5Ok_iJvSgJHNuIO0G1ZPPFXioX8l9kIg5Fl0"},
     {co:"백제", id:"1XgT_IbVaBwAISwDmUCavZMv3TqKUOi9GhsvcqmiHmgw"},
-    {co:"인천", id:"12reJpgDKl-SLe4J3UoYpZVYgDlHwQpXBaL4Ha5DuTME"},
+    {co:"인천", id:"12reJpgDKl-SLe4J3UoYpZVYgDlHwQpXBaL4Ha5DuTME", first:true},   // 인천은 문서의 첫 번째 탭(품목명·재고·"10/20 09:00 기준" 열)을 사용
   ];
   const GID = "399279356";   // 각 문서의 '품절약 리스트' 탭
   const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -1634,7 +1634,7 @@ renderAll();
   const norm = s => String(s).replace(/\([^)]*\)|\[[^\]]*\]/g, "").replace(/[\s·\-_/,.*`']/g, "").toLowerCase();
   let seq = 0, ROWS = [], META = {}, cur = "", ready = false;
 
-  function fetchSheet(id){
+  function fetchSheet(id, first){
     return new Promise((resolve, reject) => {
       const cb = "skCb_" + (seq++);
       const s = document.createElement("script");
@@ -1642,9 +1642,26 @@ renderAll();
       function done(){ clearTimeout(timer); delete window[cb]; s.remove(); }
       window[cb] = j => { done(); resolve(j); };
       s.onerror = () => { done(); reject(new Error("load")); };
-      s.src = "https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?tqx=responseHandler:" + cb + "&gid=" + GID + "&headers=2";
+      s.src = "https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?tqx=responseHandler:" + cb + (first ? "&headers=1" : "&gid=" + GID + "&headers=2");
       document.body.appendChild(s);
     });
+  }
+  // 인천 첫 번째 탭: 열 = 순번·구분·메이커·…·품목명·규격·단위·재고·"10/20 09:00 기준". 품목명+규격+단위를 이름으로, 재고 열 값을 사용
+  function parseFirst(j){
+    const cols = j.table.cols.map(c => (c.label || "").trim());
+    const iName = cols.findIndex(c => c.includes("품목명")), iSt = cols.findIndex(c => c.startsWith("재고"));
+    const iSp = cols.findIndex(c => c.startsWith("규격")), iUn = cols.findIndex(c => c.startsWith("단위")), iMk = cols.findIndex(c => c.includes("메이커"));
+    if(iName < 0 || iSt < 0) throw new Error("column mismatch");
+    const val = (r, i) => { const c = i >= 0 ? r.c[i] : null; return c && c.v != null ? String(c.v).trim() : ""; };
+    const dl = cols.map(c => c.match(/(\d{1,2})\/(\d{1,2})/)).find(Boolean);
+    const rows = [];
+    j.table.rows.forEach(r => {
+      const st = r.c[iSt] && r.c[iSt].v, nm = val(r, iName);
+      if(!nm || typeof st !== "number" || st <= 0) return;
+      const sp = val(r, iSp), un = val(r, iUn).replace(/\/?1EA$/, "");
+      rows.push({name: [nm, sp && !nm.includes(sp) ? sp : "", un && !nm.includes(un) ? un : ""].filter(Boolean).join(" ").replace(/^[`'\s]+/, ""), maker: val(r, iMk).replace(/\(주\)|\(유\)|\(#[^)]*\)|\(#\)/g, "").trim(), stock: st});
+    });
+    return {asof: dl ? (+dl[1]) + "/" + (+dl[2]) : "", rows};
   }
   // 시트 → {asof, rows:[{name,maker,stock}]}; 가장 마지막 날짜 열 기준(10/15가 있으면 10/15, 없으면 그 이전 최신일)
   function parse(j){
@@ -1721,12 +1738,12 @@ renderAll();
         <div class="sk-q">${r.stock != null ? `<b>${nf(r.stock)}</b><small>재고</small>` : `<b>${nf(r.alloc)}</b><small>VC 배정</small>`}</div>
       </div>`).join("") || `<div class="sk-empty">검색 결과가 없습니다.</div>`;
     document.getElementById("skCount").textContent = nf(hit.length) + "건";
-    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다. 백제 VC 배정은 10/20 파일 총수량에서, 복산(구글시트)은 시트 수치 그대로, 인천은 시트 수치에서 10/19 주문분을 차감한 지금 재고입니다.";
+    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다. 백제 VC 배정은 10/20 파일 총수량에서, 복산·인천(구글시트)은 시트 수치 그대로입니다.";
   }
   function load(){
     const asof = document.getElementById("skAsOf");
     asof.textContent = "불러오는 중…";
-    Promise.all(SRC.map(s => fetchSheet(s.id).then(parse).catch(e => ({err: true, rows: []})))).then(results => {
+    Promise.all(SRC.map(s => fetchSheet(s.id, s.first).then(s.first ? parseFirst : parse).catch(e => ({err: true, rows: []})))).then(results => {
       build(results);
       const parts = SRC.map(s => META[s.co] && !META[s.co].err ? `${s.co} ${META[s.co].asof} 기준` : `${s.co} 불러오기 실패`);
       const failed = results.filter(r => r.err).length;
