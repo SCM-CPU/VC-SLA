@@ -1088,8 +1088,8 @@ renderAll();
   {
    "name": "릭시아나정30mg(제약사품절) 28T",
    "maker": "대웅제약",
-   "alloc": 57,
-   "note": "VC 배정: 총 수량 57"
+   "alloc": 297,
+   "note": "VC 배정: 총 수량 297"
   },
   {
    "name": "이리콜정5mcg 30T",
@@ -1113,7 +1113,7 @@ renderAll();
    "name": "아젤리아크림30g 1EA",
    "maker": "레오파마",
    "alloc": 345,
-   "note": "VC 배정: 총 수량 425 − 주문 80 = 345"
+   "note": "VC 배정: 총 수량 345"
   },
   {
    "name": "부로멜라장용정100mg 300T",
@@ -1304,8 +1304,8 @@ renderAll();
   {
    "name": "디세텔정(제약사품절) 30T",
    "maker": "일양약품",
-   "alloc": 20,
-   "note": "VC 배정: 총 수량 20"
+   "alloc": 60,
+   "note": "VC 배정: 총 수량 60"
   },
   {
    "name": "보나링에이정 500T",
@@ -1328,14 +1328,14 @@ renderAll();
   {
    "name": "텔로핀정40/5mg(병)(제약사품절) 30T",
    "maker": "제뉴원사이언스",
-   "alloc": 15,
-   "note": "VC 배정: 총 수량 15"
+   "alloc": 35,
+   "note": "VC 배정: 총 수량 35"
   },
   {
    "name": "디푸코연고0.3%(제약사품절) 10G",
    "maker": "제이더블유신약",
-   "alloc": 300,
-   "note": "VC 배정: 총 수량 300"
+   "alloc": 150,
+   "note": "VC 배정: 총 수량 150"
   },
   {
    "name": "듀락칸시럽500mL 1EA",
@@ -1388,8 +1388,8 @@ renderAll();
   {
    "name": "이모튼캅셀(제약사품절) 30C",
    "maker": "종근당",
-   "alloc": 217,
-   "note": "VC 배정: 총 수량 312 − 주문 95 = 217"
+   "alloc": 227,
+   "note": "VC 배정: 총 수량 237 − 주문 10 = 227"
   },
   {
    "name": "이모튼캅셀(제약사품절) 90C",
@@ -1424,8 +1424,8 @@ renderAll();
   {
    "name": "케토톱엘(EL)플라스타(한독) 7P",
    "maker": "한독",
-   "alloc": 300,
-   "note": "VC 배정: 총 수량 300"
+   "alloc": 700,
+   "note": "VC 배정: 총 수량 700"
   },
   {
    "name": "케토톱플라스타(한독) 6P",
@@ -1618,11 +1618,29 @@ renderAll();
    "maker": "한국산텐제약",
    "alloc": 150,
    "note": "VC 배정: 총 수량 150"
+  },
+  {
+   "name": "카네스텐크림100g(급여) 1EA",
+   "maker": "바이엘코리아",
+   "alloc": 40,
+   "note": "VC 배정: 총 수량 40"
+  },
+  {
+   "name": "세토펜정325mg 500T",
+   "maker": "삼아제약",
+   "alloc": 10,
+   "note": "VC 배정: 총 수량 10"
+  },
+  {
+   "name": "듀락칸이지시럽15mL(Stick)(제약사품절) 200P(20P*10EA)",
+   "maker": "제이더블유중외제약",
+   "alloc": 30,
+   "note": "VC 배정: 총 수량 30"
   }
  ],
- "asof": "10/20"
+ "asof": "10/21"
 };
-  const STOCKX = {"asof":"10/20","rows":[],"over":[{"co":"백제","pat":"베오바정50mg","base":360,"stock":615},{"co":"백제","pat":"릭시아나정30mg","base":100,"stock":57},{"co":"복산","pat":"시카플루이드점안겔10g","base":10,"stock":0},{"co":"복산","pat":"레가론캡슐140/100c","base":7,"stock":0},{"co":"복산","pat":"나조넥스나잘스프레이140dose","base":194,"stock":189},{"co":"복산","pat":"인데놀정10/1000t","base":5,"stock":3},{"co":"인천","pat":"이모튼캅셀300mg30c","base":10,"stock":0}]};
+  const STOCKX = {"asof":"10/21","rows":[],"over":[{"co":"백제","pat":"베오바정50mg","base":360,"stock":615},{"co":"백제","pat":"릭시아나정30mg","base":100,"stock":297},{"co":"인천","pat":"이모튼캅셀300mg30c","base":10,"stock":0}]};
   const SRC = [
     {co:"복산", id:"112IdD5Y5Ok_iJvSgJHNuIO0G1ZPPFXioX8l9kIg5Fl0"},
     {co:"백제", id:"1XgT_IbVaBwAISwDmUCavZMv3TqKUOi9GhsvcqmiHmgw"},
@@ -1738,7 +1756,7 @@ renderAll();
         <div class="sk-q">${r.stock != null ? `<b>${nf(r.stock)}</b><small>재고</small>` : `<b>${nf(r.alloc)}</b><small>VC 배정</small>`}</div>
       </div>`).join("") || `<div class="sk-empty">검색 결과가 없습니다.</div>`;
     document.getElementById("skCount").textContent = nf(hit.length) + "건";
-    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다. 백제 VC 배정은 10/20 파일 총수량에서 10/19·10/20 주문분을, 복산·인천(구글시트)은 시트 수치에서 10/20 주문분을 차감한 지금 재고입니다.";
+    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 'VC 배정'은 공급사가 VC 할당 품목으로 배정 완료한 수량입니다. 백제 VC 배정은 10/21 파일 총수량에서 아직 반영되지 않은 10/20 주문분을 차감하고, 복산·인천(구글시트)은 시트 수치(인천은 10/20 주문분 차감)를 그대로 쓴 지금 재고입니다.";
   }
   function load(){
     const asof = document.getElementById("skAsOf");
