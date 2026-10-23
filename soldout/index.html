@@ -1545,7 +1545,7 @@ renderAll();
     const chips = [{k: "", t: "전체 " + nf(ROWS.length)}].concat(SRC.map(s => ({k: s.co, t: s.co + " " + nf(tot[s.co] || 0)})));
     const nrel = ROWS.filter(r => r.rel).length; if(RELLIST.length) chips.push({k: "__rel__", t: "품절 풀린 약 " + nrel, rel: true});
     const md = d => (+d.slice(5, 7)) + "/" + (+d.slice(8, 10));
-    document.getElementById("skRel").innerHTML = RELLIST.length ? `<div class="h">품절 풀린 약 <b>누적 ${RELLIST.length}개</b></div>` + RELLIST.map(r => `<div class="it"><div>${esc(r.name)} — 품절 풀린 약</div><span>${md(r.date)} 확인</span></div>`).join("") + `<div class="n">101개 리스트에서는 계속 관리하는 약입니다.</div>` : "";
+    document.getElementById("skRel").innerHTML = RELLIST.length ? `<div class="h">품절 풀린 약 <b>누적 ${RELLIST.length}개</b></div>` + RELLIST.map(r => `<div class="it"><div>${esc(r.name)}</div><span>${md(r.date)} 확인</span></div>`).join("") + `<div class="n">101개 리스트에서는 계속 관리하는 약입니다.</div>` : "";
     document.getElementById("skCo").innerHTML = chips.map(c => `<button type="button" class="sk-chip ${c.al ? "al" : ""} ${c.rel ? "rel" : ""} ${cur === c.k ? "on" : ""}" data-k="${c.k}">${c.t}</button>`).join("");
   }
   function renderRows(){
