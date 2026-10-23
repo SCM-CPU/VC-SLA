@@ -237,6 +237,7 @@ tr.req-hide{display:none;}
 .sk-q b{display:block;font-size:22px;font-weight:900;color:var(--ink);letter-spacing:-.5px;line-height:1.1;}
 .sk-q small{font-size:11px;color:var(--muted);font-weight:700;}
 .sk-empty{text-align:center;color:var(--muted);padding:40px 0;}
+.sk-empty .sk-no101{display:block;color:#E53935;font-weight:900;font-size:20px;line-height:1.4;word-break:keep-all;padding:0 12px;}
 .pl-cotabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .pl-co{font-family:inherit;font-size:13px;font-weight:800;padding:7px 16px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;}
 .pl-co.on{background:var(--accent);color:#fff;border-color:var(--accent);}
@@ -1410,7 +1411,7 @@ renderAll();
     const hit = ROWS.filter(r => (!cur || r.co === cur) && (!q || norm(r.name + r.maker).includes(q)));
     const emptyMsg = () => {   // 검색 결과가 없을 때: 리스트 밖 제품이면 관리 대상이 아니라고 안내
       if(!q) return "검색 결과가 없습니다.";
-      return L101N.some(n => norm(n).includes(q)) ? "관리 대상 품절약이지만 지금 재고가 없습니다." : "우리가 관리하는 101개 품절약이 아닙니다.";
+      return L101N.some(n => norm(n).includes(q)) ? "관리 대상 품절약이지만 지금 재고가 없습니다." : '<b class="sk-no101">우리가 관리하는 101개 품절약이 아닙니다.</b>';
     };
     document.getElementById("skList").innerHTML = hit.map(r => `
       <div class="sk-item ${r.alloc ? "al" : ""}" data-co="${r.co}">
