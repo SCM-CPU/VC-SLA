@@ -227,6 +227,9 @@ tr.req-hide{display:none;}
 .sk-count{font-size:12.5px;color:var(--muted);margin:10px 4px 8px;}
 .sk-item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-left:5px solid var(--c,var(--accent));border-radius:14px;padding:12px 14px;margin-bottom:8px;}
 .sk-item.al{background:var(--warn-bg);}
+.sk-item.rel{border-color:#7B3FE4;border-left-color:#7B3FE4;background:rgba(123,63,228,.08);}
+.sk-rel{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:800;background:#7B3FE4;color:#fff;white-space:nowrap;}
+.sk-item.rel .sk-q b{color:#7B3FE4;}
 .sk-item[data-co="복산"]{--c:var(--vc1);} .sk-item[data-co="백제"]{--c:var(--green);} .sk-item[data-co="인천"]{--c:var(--warn);}
 .sk-main{flex:1;min-width:0;}
 .sk-name{font-size:15px;font-weight:700;line-height:1.4;overflow-wrap:anywhere;}
@@ -1117,7 +1120,8 @@ renderAll();
   {
    "name": "디푸코연고0.3% 10G",
    "maker": "",
-   "stock": 150
+   "stock": 150,
+   "rel": true
   },
   {
    "name": "라니넥스나잘스프레이140dose 1EA",
@@ -1381,7 +1385,8 @@ renderAll();
   {
    "name": "바스티난MR서방정 35/60T",
    "maker": "",
-   "stock": 50
+   "stock": 50,
+   "rel": true
   },
   {
    "name": "산텐 가리유니 점안액",
@@ -1488,7 +1493,7 @@ renderAll();
     // 백제(mode=stock): 시트 재고 수량을 그대로 재고 행으로 추가
     if(ALLOC.mode === "stock"){
       Object.keys(ALLOC).filter(k => k !== "asof" && k !== "mode").forEach(co => {
-        ALLOC[co].forEach(a => ROWS.push({co, name: a.name, maker: a.maker || "", stock: a.stock, alloc: 0, note: ""}));
+        ALLOC[co].forEach(a => ROWS.push({co, name: a.name, maker: a.maker || "", stock: a.stock, alloc: 0, note: "", rel: !!a.rel}));
         META[co] = {asof: ALLOC.asof, n: ALLOC[co].length};
       });
     }
@@ -1533,15 +1538,15 @@ renderAll();
       return L101N.some(n => norm(n).includes(q)) ? "관리 대상 품절약이지만 지금 재고가 없습니다." : '<b class="sk-no101">우리가 관리하는 101개 품절약이 아닙니다.</b>';
     };
     document.getElementById("skList").innerHTML = hit.map(r => `
-      <div class="sk-item ${r.alloc ? "al" : ""}" data-co="${r.co}">
+      <div class="sk-item ${r.alloc ? "al" : ""} ${r.rel ? "rel" : ""}" data-co="${r.co}">
         <div class="sk-main">
           <div class="sk-name">${esc(r.name)}</div>
-          <div class="sk-meta"><span class="sk-co">${r.co}</span>${r.alloc ? `<span class="sk-alloc">VC 배정 ${nf(r.alloc)}개</span>` : ""}${r.maker ? `<span>${esc(r.maker)}</span>` : ""}</div>
+          <div class="sk-meta"><span class="sk-co">${r.co}</span>${r.rel ? `<span class="sk-rel">품절 풀린 약</span>` : ""}${r.alloc ? `<span class="sk-alloc">VC 배정 ${nf(r.alloc)}개</span>` : ""}${r.maker ? `<span>${esc(r.maker)}</span>` : ""}</div>
         </div>
         <div class="sk-q">${r.stock != null ? `<b>${nf(r.stock)}</b><small>재고</small>` : `<b>${nf(r.alloc)}</b><small>VC 배정</small>`}</div>
       </div>`).join("") || `<div class="sk-empty">${emptyMsg()}</div>`;
     document.getElementById("skCount").textContent = nf(hit.length) + "건";
-    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 유통지원팀 품절약 관리 시트의 협력사별 탭(백제약품·복산나이스·인천약품) 재고 수량이며, 인천은 저마진·미취급 등 사유를 회신한 품목을 제외했습니다.";
+    document.getElementById("skFoot").textContent = "재고는 협력사가 구글시트에 기재하거나 유통지원팀이 취합한 수치이며 수시로 변동됩니다. 유통지원팀 품절약 관리 시트의 협력사별 탭(백제약품·복산나이스·인천약품) 재고 수량입니다. 보라색 '품절 풀린 약'은 품절이 풀려 항상 재고가 있는 품목입니다(101개 리스트에는 유지).";
   }
   function load(){
     const asof = document.getElementById("skAsOf");
