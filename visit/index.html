@@ -78,6 +78,8 @@ tr.hl td:first-child{border-left:2px solid var(--acc);border-radius:10px 0 0 10p
 tr.hl td:last-child{border-right:2px solid var(--acc);border-radius:0 10px 10px 0}
 .card td:nth-child(n+2){white-space:nowrap}
 .btn.alloc{display:inline-block;margin:0 0 10px;padding:8px 14px;font-size:14px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:90%;background:#141A2B;color:#fff;border-radius:12px;padding:10px 16px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+#toast.show{opacity:1}
 .gu{font-weight:600;color:var(--mute);margin-left:2px}
 .cohead{display:flex;align-items:center;gap:8px;margin:20px 0 8px;font-size:17px}
 .cohead i{width:6px;height:22px;border-radius:3px;background:var(--cc);display:inline-block}
@@ -130,6 +132,15 @@ $('#go').onclick=()=>unlock($('#pw').value);
 $('#pw').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#go').click(); });
 
 
+const ALLOC='https://shortage-pharmacy-allocation.kingcar7918.chatgpt.site/app?page=pharmacies';
+/* 배정 앱이 &pharmacy= 를 읽도록 고쳐지기 전에도 쓸 수 있게 약국명을 복사해 둔다(앱 약국조회 검색창에 붙여넣기) */
+function copyName(i){
+  const name=D.ph[i].n;
+  try{ navigator.clipboard.writeText(name); }catch(e){}
+  let t=document.getElementById('toast'); if(!t){ t=document.createElement('div'); t.id='toast'; document.body.appendChild(t); }
+  t.textContent='“'+name+'” 복사됨 — 앱에서 자동으로 안 찾아지면 약국조회 검색창에 붙여넣으세요'; t.className='show';
+  clearTimeout(window._tt); window._tt=setTimeout(()=>{ t.className=''; },4000);
+}
 const CO={'백제':'#0E8A5F','복산':'#2F63F2','인천':'#D4570C'};   // 권역(협력사) 색
 const dl=d=>d<=0?'오늘':d+'일 전';
 const dc=d=>d<=30?'g':d<=90?'y':'r';
@@ -232,7 +243,7 @@ function viewCard(i){
   if(selCode) stk.sort((a,b)=>(b[6]===selCode)-(a[6]===selCode));
   const back=(S.from&&S.from.length>1)?S.from:`#m/${p.m}`;
   $('#app').innerHTML=`<a class="back" href="${back}">← 약국 목록</a>
-  <div class="card"><a class="btn alloc" href="https://shortage-pharmacy-allocation.kingcar7918.chatgpt.site/app?page=pharmacies" target="_blank" rel="noopener">품절약 배정 바로가기 ↗</a><h2>${pn(p)}${vcb(p)}</h2>
+  <div class="card"><a class="btn alloc" href="${ALLOC}&pharmacy=${encodeURIComponent(p.n)}" target="_blank" rel="noopener" onclick="copyName(${p.i})">품절약 배정 바로가기 ↗</a><h2>${pn(p)}${vcb(p)}</h2>
   <div class="sub"><span class="co" style="--cc:${CO[p.c]||'#666'}">${esc(p.c)}</span> ${esc(p.r)} · ${p.v?'VC 회원':'VC 비회원'} · 담당 <a href="#m/${p.m}" style="color:var(--acc);font-weight:700">${esc(m.n)}</a> (${esc(offLabel(o))})</div>
   <div class="score"><span>점수 <b>${p.s}</b>/100</span><span>오늘 재고 적합도 <b>${p.p[0]}</b>/50</span><span>최근 구매 <b>${p.p[1]}</b>/30</span><span>구매 규모 <b>${p.p[2]}</b>/20</span></div>
   ${rec.length?`<div class="rec"><b>오늘 권할 약</b> (오늘 ${esc(p.c)} 재고 있음)${rec.slice(0,8).map(t=>`<div>${esc(t[0])} <span class="dot ${dc(t[1])}" style="margin-left:6px"></span>${dl(t[1])}</div>`).join('')}${rec.length>8?`<div style="color:var(--mute)">… 외 ${rec.length-8}품목 (아래 표의 '오늘 재고' 표시)</div>`:''}</div>`:'<div class="rec"><b>오늘 권할 약</b> · 오늘 재고와 겹치는 최근 구매가 없습니다.</div>'}
