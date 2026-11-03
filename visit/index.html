@@ -123,11 +123,7 @@ async function unlock(pw){
 function showErr(e){ $('#app').innerHTML='<p class="sub">화면을 그리지 못했습니다: '+esc((e&&e.name)||'오류')+' '+esc((e&&e.message)||'')+'</p>'; }
 $('#go').onclick=()=>unlock($('#pw').value);
 $('#pw').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#go').click(); });
-if(PLAIN){
-  D=PLAIN; $('#lock').style.display='none'; $('#app').style.display='block';
-  window.addEventListener('hashchange',()=>{ try{route()}catch(e){ showErr(e) } });
-  try{ route(); }catch(e){ showErr(e); }
-}else{ try{ const p=sessionStorage.getItem('vp'); if(p) unlock(p); }catch(e){} }
+
 
 const CO={'백제':'#0E8A5F','복산':'#2F63F2','인천':'#D4570C'};   // 권역(협력사) 색
 const dl=d=>d<=0?'오늘':d+'일 전';
@@ -245,6 +241,12 @@ function legend(){
   return `<div class="foot"><b>점수 기준 (100점)</b> — 오늘 재고 적합도 50점: 오늘 재고 품목 중 최근 180일 안에 산 품목이 많고 수량이 많을수록 높음 · 최근 구매 30점: 31~180일 30(다시 살 시점), 181~365일 20, 30일 이내 15(방금 산 곳), 1년 초과 5 · 구매 규모 20점: 누적 금액과 산 품목 수.<br>
   구매 시기 색: <span class="dot g"></span>30일 이내 <span class="dot y"></span>90일 이내 <span class="dot r"></span>그보다 오래됨 · 구매 이력은 최근 2년 누적(주문 횟수는 없음) · 재고는 ${D.asof} 협력사 시트 기준이며 판매에 따라 수시로 변동됩니다.<br>유통지원팀 · 내부 직원 전용</div>`;
 }
+/* 시작 — 모든 함수·상수 정의 뒤에서 실행(앞에 두면 offKey 같은 const가 아직 없어 오류) */
+if(PLAIN){
+  D=PLAIN; $('#lock').style.display='none'; $('#app').style.display='block';
+  window.addEventListener('hashchange',()=>{ try{route()}catch(e){ showErr(e) } });
+  try{ route(); }catch(e){ showErr(e); }
+}else{ try{ const p=sessionStorage.getItem('vp'); if(p) unlock(p); }catch(e){} }
 </script>
 </body>
 </html>
