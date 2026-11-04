@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>시장 품절약 + 3사(백제/복산/인천) 품절약 현황</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <style>
   :root{
     --bg:#EEF1F8; --surface:#FFFFFF; --surface-alt:#F5F7FC;
@@ -312,31 +313,99 @@ a.tabbtn{text-decoration:none;display:inline-flex;align-items:center;justify-con
   .req-controls select, .req-controls input{font-size:12.5px;padding:7px 10px;}
   .req-controls input{min-width:120px;}
 }
+
+/* ===== 메인 대시보드 톤 (11/04): 남색 헤더 · Pretendard · 알약 메뉴 · 남색 숫자 카드 · 둥근 카드 ===== */
+:root{--navy1:#0b1120;--navy2:#1b2647;--navy-mute:#a9b4d0;--gut:20px;--r-card:22px;}
+body{font-family:"Pretendard","Noto Sans KR","Malgun Gothic",-apple-system,sans-serif;padding:0 var(--gut) 40px;}
+.hero{background:linear-gradient(135deg,var(--navy1),var(--navy2));color:#fff;margin:0 calc(-1 * var(--gut));border-radius:0 0 26px 26px;}
+.hero-in{max-width:1400px;margin:0 auto;padding:18px var(--gut) 20px;display:flex;align-items:center;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;margin-bottom:0;}
+.hero .titles h1{color:#fff;font-size:22px;font-weight:800;letter-spacing:-.5px;}
+.hero .titles p{color:var(--navy-mute);}
+.hero .bm-icon,.hero .bm-plus{background:#fff;color:var(--navy2);}
+.hero .bm-the,.hero .bm-shop{color:#fff;}
+.hero .brand{gap:14px;flex-wrap:wrap;}
+.hero .updated{color:var(--navy-mute);}
+.hero .updated b{color:#fff;}
+.hero #hardRefreshBtn{color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);}
+.hero #hardRefreshBtn:hover{background:rgba(255,255,255,.16);}
+.live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2bd67b;flex:none;}
+.wrap{padding-top:2px;}
+.tabbar{margin:16px 0 16px;flex-wrap:wrap;}
+.tabbtn{display:inline-flex;align-items:center;gap:6px;box-shadow:var(--shadow);font-weight:700;}
+.tabbtn i{font-style:normal;font-size:16px;line-height:1;}
+.tabbtn.active{background:var(--navy2);color:#fff;border-color:var(--navy2);}
+:root[data-theme="dark"] .tabbtn.active{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent);}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tabbtn.active{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent);}}
+.tile{background:linear-gradient(135deg,var(--navy1),var(--navy2));border:0;border-radius:18px;padding:14px 18px;}
+.tile .k{color:var(--navy-mute);}
+.tile .v{color:#fff;font-weight:800;}
+.tile.new .v{color:#8fb8ff;} .tile.hot .v{color:#ff9a9d;}
+.tile .v small{color:var(--navy-mute);}
+.card,.pl-hero{border-radius:var(--r-card);}
+.card h2{font-size:17px;font-weight:800;letter-spacing:-.3px;}
+.card h2::before{content:"";width:5px;height:18px;border-radius:3px;background:var(--accent);flex:none;align-self:center;}
+.searchRow input,.sk-search{border-radius:999px;padding-left:20px;}
+.dates button{border-radius:14px;}
+.dates button[aria-pressed="true"]{background:var(--navy2);border-color:var(--navy2);}
+.help{border-radius:var(--r-card);}
+/* VC 요청 현황 요약: 한 줄(상태 4칸 + 팀 4칸), 색으로 구분 */
+.req-strip{display:flex;align-items:stretch;gap:14px;margin-bottom:18px;}
+.req-strip .req-tiles,.req-strip .req-teams{margin:0;gap:8px;grid-template-columns:repeat(4,minmax(0,1fr));}
+.req-strip .req-tiles{flex:1.15;}
+.req-strip .req-teams{flex:1;padding-left:14px;border-left:2px dashed var(--border);}
+.req-tile{border:0;border-radius:16px;padding:12px 14px;}
+.req-tile .n{font-size:26px;font-weight:800;}
+.req-tile .n small{font-size:14px;font-weight:700;opacity:.65;margin-left:1px;}
+.req-tile .l{font-size:11.5px;font-weight:600;line-height:1.35;}
+/* 왼쪽(상태) = 남색 톤, 오른쪽(팀) = 흰 톤 */
+.req-tile{background:linear-gradient(135deg,var(--navy1),var(--navy2));}
+.req-tile .l{color:var(--navy-mute);}
+.req-tile.total .n{color:#fff;}
+.req-tile.green .n{color:#5FD196;}
+.req-tile.amber .n{color:#F2C14E;}
+.req-tile.red .n{color:#FF8A8E;}
+.req-team{border:1px solid var(--border);border-left:5px solid var(--tc);border-radius:16px;padding:12px 14px;background:var(--surface);box-shadow:var(--shadow);}
+.req-team .name{font-size:12px;margin-bottom:4px;}
+.req-team .n{font-size:20px;font-weight:800;}
+@media (max-width:1100px){
+  .req-strip{flex-direction:column;gap:8px;}
+  .req-strip .req-teams{padding-left:0;border-left:0;}
+}
+@media (max-width:480px){
+  .req-strip .req-tiles,.req-strip .req-teams{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media (max-width:480px){
+  :root{--gut:16px;}
+  .hero .titles h1{font-size:20px;}
+  .tabbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .tabbtn{flex:none;justify-content:center;padding:11px 6px;}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
+<header class="hero">
+  <div class="hero-in topbar">
     <div class="brand">
       <span class="brand-mark"><span class="bm-icon">+</span><span class="bm-the">the</span><span class="bm-shop">SHOP</span><span class="bm-plus">Plus+</span></span>
       <div class="titles">
-        <h1>시장 품절약 + 3사(백제/복산/인천) 품절약</h1>
-        <p>대웅제약 일일 품절 의약품 순위 · 날짜별 변화 · 협력도매 3사 공통 품절 리스트</p>
+        <h1>시장 품절약 현황</h1>
+        <p>시장 품절 순위 · 날짜별 변화 · 협력도매 3사 공통 품절</p>
       </div>
     </div>
-    <div class="updated"><button id="hardRefreshBtn" type="button" title="캐시 무시하고 최신 데이터 불러오기">새로고침</button><span id="updated"></span></div>
+    <div class="updated"><span class="live"></span><span id="updated"></span><button id="hardRefreshBtn" type="button" title="캐시 무시하고 최신 데이터 불러오기">새로고침</button></div>
   </div>
-
+</header>
+<div class="wrap">
   <div class="tabbar">
-    <button class="tabbtn active" id="tabBtnRequest" type="button">VC 요청 현황</button>
-    <button class="tabbtn" id="tabBtnSoldout" type="button">바로팜 품절리스트</button>
-    <a class="tabbtn" id="tabLinkAlloc" href="https://shortage-pharmacy-allocation.mossy-charm-0662.chatgpt.site/app" target="_blank" rel="noopener">품절약 배정 ↗</a>
-    <a class="tabbtn" id="tabLinkVisit" href="https://scm-cpu.github.io/VC-SLA/visit/" target="_blank" rel="noopener">여기 가세요 ↗</a>
+    <button class="tabbtn active" id="tabBtnRequest" type="button"><i>📋</i>VC 요청 현황</button>
+    <button class="tabbtn" id="tabBtnSoldout" type="button"><i>📦</i>바로팜 품절리스트</button>
+    <a class="tabbtn" id="tabLinkAlloc" href="https://shortage-pharmacy-allocation.mossy-charm-0662.chatgpt.site/app" target="_blank" rel="noopener"><i>🧾</i>품절약 배정 ↗</a>
+    <a class="tabbtn" id="tabLinkVisit" href="https://scm-cpu.github.io/VC-SLA/visit/" target="_blank" rel="noopener"><i>📍</i>여기 가세요 ↗</a>
   </div>
 
   <div id="tabSoldout" class="tabpanel hide">
   <div class="searchRow">
-    <input type="search" id="q" placeholder="제품명으로 검색 (예: 타이레놀 — 일부만 입력해도 찾아줍니다)" autocomplete="off">
+    <input type="search" id="q" placeholder="🔍 제품명 검색 (예: 타이레놀)" autocomplete="off">
     <p class="searchStatus" id="searchStatus"></p>
   </div>
 
@@ -393,11 +462,12 @@ a.tabbtn{text-decoration:none;display:inline-flex;align-items:center;justify-con
   <h2 class="req-title">VC 품절약 요청 현황</h2>
   <p class="req-sub">CH사업부 요청 → VC팀 → 협력도매 3사 피드백 결과 · <span id="reqAsOf">불러오는 중…</span></p>
 
-  <div class="req-tiles" id="reqTiles">
-    <div class="req-tile"><div class="n">…</div><div class="l">불러오는 중</div></div>
+  <div class="req-strip">
+    <div class="req-tiles" id="reqTiles">
+      <div class="req-tile"><div class="n">…</div><div class="l">불러오는 중</div></div>
+    </div>
+    <div class="req-teams" id="reqTeams"></div>
   </div>
-
-  <div class="req-teams" id="reqTeams"></div>
 
   <div class="req-controls">
     <input type="search" id="reqQ" placeholder="약국명·품목명·담당자로 검색">
@@ -521,11 +591,10 @@ function renderReqTiles(){
   let answered = 0;
   REQ_DATA.forEach(r => { counts[r[6]]++; if(r[7] && r[7] !== "-") answered++; });
   document.getElementById("reqTiles").innerHTML = `
-    <div class="req-tile"><div class="n">${total}</div><div class="l">총 요청 건수</div></div>
+    <div class="req-tile total"><div class="n">${answered}<small>/${total}</small></div><div class="l">도매 회신 완료 · 총 요청</div></div>
     <div class="req-tile green"><div class="n">${counts.green}</div><div class="l">즉시가능·입고완료</div></div>
     <div class="req-tile amber"><div class="n">${counts.amber}</div><div class="l">입고 예정</div></div>
     <div class="req-tile red"><div class="n">${counts.red}</div><div class="l">품절 안내(시장 품절)</div></div>
-    <div class="req-tile"><div class="n">${answered}/${total}</div><div class="l">도매 회신 완료</div></div>
   `;
 }
 
@@ -536,7 +605,7 @@ function reqTeamCounts(){
 }
 function renderReqTeams(){
   document.getElementById("reqTeams").innerHTML = Object.entries(reqTeamCounts()).map(([t,n]) =>
-    `<div class="req-team" style="--tc:${REQ_TEAM_COLOR[t][0]}">
+    `<div class="req-team" style="--tc:${REQ_TEAM_COLOR[t][0]};--tb:${REQ_TEAM_COLOR[t][1]}">
        <div class="name">약국${t}팀</div>
        <div class="stats">
          <span class="n">${REQ_TEAM_HEADCOUNT[t]}<small>명</small></span>
