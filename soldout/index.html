@@ -453,7 +453,7 @@ body{font-family:"Pretendard","Noto Sans KR","Malgun Gothic",-apple-system,sans-
   <div id="reqLock">
     <p class="req-sub">내부 직원 전용 화면입니다. 비밀번호를 입력하세요.</p>
     <div class="req-controls">
-      <input type="password" id="reqPw" placeholder="비밀번호" style="max-width:160px;">
+      <input type="password" id="reqPw" name="req-pin" placeholder="비밀번호" autocomplete="new-password" style="max-width:160px;">
       <button class="tabbtn" id="reqUnlockBtn" type="button">확인</button>
     </div>
     <p class="req-foot" id="reqPwErr" style="display:none;color:var(--hot);">비밀번호가 올바르지 않습니다.</p>
